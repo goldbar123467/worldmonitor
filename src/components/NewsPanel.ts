@@ -36,6 +36,7 @@ export class NewsPanel extends Panel {
   private renderRequestId = 0;
   private boundScrollHandler: (() => void) | null = null;
   private boundClickHandler: (() => void) | null = null;
+  private delegatedEventsInitialized = false;
 
   // Panel summary feature
   private summaryBtn: HTMLButtonElement | null = null;
@@ -511,46 +512,59 @@ export class NewsPanel extends Panel {
   }
 
   private bindRelatedAssetEvents(): void {
-    const containers = this.content.querySelectorAll<HTMLDivElement>('.related-assets');
-    containers.forEach((container) => {
-      const clusterId = container.dataset.clusterId;
-      if (!clusterId) return;
-      const context = this.relatedAssetContext.get(clusterId);
-      if (!context) return;
+    // Use event delegation instead of per-item listeners
+    // Only attach once since we delegate from the container
+    if (this.delegatedEventsInitialized) return;
+    this.delegatedEventsInitialized = true;
 
-      container.addEventListener('mouseenter', () => {
-        this.onRelatedAssetsFocus?.(context.assets, context.origin.label);
-      });
+    this.content.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
 
-      container.addEventListener('mouseleave', () => {
-        this.onRelatedAssetsClear?.();
-      });
-    });
-
-    const assetButtons = this.content.querySelectorAll<HTMLButtonElement>('.related-asset');
-    assetButtons.forEach((button) => {
-      button.addEventListener('click', (event) => {
-        event.stopPropagation();
-        const clusterId = button.dataset.clusterId;
-        const assetId = button.dataset.assetId;
-        const assetType = button.dataset.assetType as RelatedAsset['type'] | undefined;
+      // Handle related asset button clicks
+      const assetBtn = target.closest<HTMLButtonElement>('.related-asset');
+      if (assetBtn) {
+        e.stopPropagation();
+        const clusterId = assetBtn.dataset.clusterId;
+        const assetId = assetBtn.dataset.assetId;
+        const assetType = assetBtn.dataset.assetType as RelatedAsset['type'] | undefined;
         if (!clusterId || !assetId || !assetType) return;
         const context = this.relatedAssetContext.get(clusterId);
         const asset = context?.assets.find(item => item.id === assetId && item.type === assetType);
         if (asset) {
           this.onRelatedAssetClick?.(asset);
         }
-      });
+        return;
+      }
+
+      // Handle translation button clicks
+      const translateBtn = target.closest<HTMLElement>('.item-translate-btn');
+      if (translateBtn) {
+        e.stopPropagation();
+        const text = translateBtn.dataset.text;
+        if (text) this.handleTranslate(translateBtn, text);
+        return;
+      }
     });
 
-    // Translation buttons
-    const translateBtns = this.content.querySelectorAll<HTMLElement>('.item-translate-btn');
-    translateBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const text = btn.dataset.text;
-        if (text) this.handleTranslate(btn, text);
-      });
+    this.content.addEventListener('mouseover', (e) => {
+      const target = e.target as HTMLElement;
+      const container = target.closest<HTMLDivElement>('.related-assets');
+      if (container) {
+        const clusterId = container.dataset.clusterId;
+        if (!clusterId) return;
+        const context = this.relatedAssetContext.get(clusterId);
+        if (context) {
+          this.onRelatedAssetsFocus?.(context.assets, context.origin.label);
+        }
+      }
+    });
+
+    this.content.addEventListener('mouseout', (e) => {
+      const target = e.target as HTMLElement;
+      const container = target.closest<HTMLDivElement>('.related-assets');
+      if (container) {
+        this.onRelatedAssetsClear?.();
+      }
     });
   }
 

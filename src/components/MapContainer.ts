@@ -4,7 +4,7 @@
  */
 import { isMobileDevice } from '@/utils';
 import { MapComponent } from './Map';
-import { DeckGLMap, type DeckMapView, type CountryClickPayload } from './DeckGLMap';
+import type { DeckGLMap, DeckMapView, CountryClickPayload } from './DeckGLMap';
 import type {
   MapLayers,
   Hotspot,
@@ -75,7 +75,7 @@ export class MapContainer {
     // Use deck.gl on desktop with WebGL support, SVG on mobile
     this.useDeckGL = !this.isMobile && this.hasWebGLSupport();
 
-    this.init();
+    void this.init();
   }
 
   private hasWebGLSupport(): boolean {
@@ -88,10 +88,11 @@ export class MapContainer {
     }
   }
 
-  private init(): void {
+  private async init(): Promise<void> {
     if (this.useDeckGL) {
       console.log('[MapContainer] Initializing deck.gl map (desktop mode)');
       this.container.classList.add('deckgl-mode');
+      const { DeckGLMap } = await import('./DeckGLMap');
       this.deckGLMap = new DeckGLMap(this.container, {
         ...this.initialState,
         view: this.initialState.view as DeckMapView,

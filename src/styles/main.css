@@ -1158,6 +1158,8 @@ canvas,
   flex: 1;
   overflow-y: auto;
   padding: 8px;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 300px;
 }
 
 .panel-content::-webkit-scrollbar {
@@ -14117,4 +14119,9 @@ body.has-critical-banner .panels-grid {
 
 .cw-dismiss:hover {
   color: var(--text-dim, #888);
+}
+
+/* Pause animations for off-screen panels to reduce idle CPU */
+.panel-offscreen .panel-content * {
+  animation-play-state: paused !important;
 }

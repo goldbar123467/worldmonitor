@@ -47,6 +47,37 @@ function setSpanClass(element: HTMLElement, span: number): void {
   element.classList.add('resized');
 }
 
+// Singleton resize manager: 3 global listeners instead of 120+ (3 per panel)
+class PanelResizeManager {
+  private static instance: PanelResizeManager;
+  private activePanel: Panel | null = null;
+
+  static getInstance(): PanelResizeManager {
+    if (!PanelResizeManager.instance) {
+      PanelResizeManager.instance = new PanelResizeManager();
+    }
+    return PanelResizeManager.instance;
+  }
+
+  private constructor() {
+    document.addEventListener('touchmove', (e) => {
+      this.activePanel?.handleTouchMove(e);
+    }, { passive: false });
+    document.addEventListener('touchend', () => {
+      this.activePanel?.handleTouchEnd();
+      this.activePanel = null;
+    });
+    document.addEventListener('mouseup', () => {
+      this.activePanel?.handleMouseUp();
+      this.activePanel = null;
+    });
+  }
+
+  setActivePanel(panel: Panel | null): void {
+    this.activePanel = panel;
+  }
+}
+
 export class Panel {
   protected element: HTMLElement;
   protected content: HTMLElement;
@@ -60,9 +91,6 @@ export class Panel {
   private isResizing = false;
   private startY = 0;
   private startHeight = 0;
-  private onTouchMove: ((e: TouchEvent) => void) | null = null;
-  private onTouchEnd: (() => void) | null = null;
-  private onDocMouseUp: (() => void) | null = null;
 
   constructor(options: PanelOptions) {
     this.panelId = options.id;
@@ -156,6 +184,9 @@ export class Panel {
   private setupResizeHandlers(): void {
     if (!this.resizeHandle) return;
 
+    // Ensure singleton manager is initialized
+    PanelResizeManager.getInstance();
+
     const onMouseDown = (e: MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
@@ -165,6 +196,8 @@ export class Panel {
       this.element.classList.add('resizing');
       this.element.draggable = false;
       this.resizeHandle?.classList.add('active');
+      this.element.dataset.resizing = 'true';
+      PanelResizeManager.getInstance().setActivePanel(this);
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseup', onMouseUp);
     };
@@ -204,11 +237,6 @@ export class Panel {
       }
     }, true);
 
-    // Mark element as resizing for external listeners
-    this.resizeHandle.addEventListener('mousedown', () => {
-      this.element.dataset.resizing = 'true';
-    });
-
     // Double-click to reset
     this.resizeHandle.addEventListener('dblclick', () => {
       this.resetHeight();
@@ -227,41 +255,40 @@ export class Panel {
       this.element.draggable = false;
       this.element.dataset.resizing = 'true';
       this.resizeHandle?.classList.add('active');
+      PanelResizeManager.getInstance().setActivePanel(this);
     }, { passive: false });
+  }
 
-    // Use bound handlers so they can be removed in destroy()
-    this.onTouchMove = (e: TouchEvent) => {
-      if (!this.isResizing) return;
-      const touch = e.touches[0];
-      if (!touch) return;
-      const deltaY = touch.clientY - this.startY;
-      const newHeight = Math.max(200, this.startHeight + deltaY);
-      const span = heightToSpan(newHeight);
-      setSpanClass(this.element, span);
-    };
+  /** Called by PanelResizeManager singleton on document touchmove */
+  public handleTouchMove(e: TouchEvent): void {
+    if (!this.isResizing) return;
+    const touch = e.touches[0];
+    if (!touch) return;
+    const deltaY = touch.clientY - this.startY;
+    const newHeight = Math.max(200, this.startHeight + deltaY);
+    const span = heightToSpan(newHeight);
+    setSpanClass(this.element, span);
+  }
 
-    this.onTouchEnd = () => {
-      if (!this.isResizing) return;
-      this.isResizing = false;
-      this.element.classList.remove('resizing');
-      this.element.draggable = true;
+  /** Called by PanelResizeManager singleton on document touchend */
+  public handleTouchEnd(): void {
+    if (!this.isResizing) return;
+    this.isResizing = false;
+    this.element.classList.remove('resizing');
+    this.element.draggable = true;
+    delete this.element.dataset.resizing;
+    this.resizeHandle?.classList.remove('active');
+    const currentSpan = this.element.classList.contains('span-4') ? 4 :
+      this.element.classList.contains('span-3') ? 3 :
+        this.element.classList.contains('span-2') ? 2 : 1;
+    savePanelSpan(this.panelId, currentSpan);
+  }
+
+  /** Called by PanelResizeManager singleton on document mouseup */
+  public handleMouseUp(): void {
+    if (this.element.dataset.resizing) {
       delete this.element.dataset.resizing;
-      this.resizeHandle?.classList.remove('active');
-      const currentSpan = this.element.classList.contains('span-4') ? 4 :
-        this.element.classList.contains('span-3') ? 3 :
-          this.element.classList.contains('span-2') ? 2 : 1;
-      savePanelSpan(this.panelId, currentSpan);
-    };
-
-    this.onDocMouseUp = () => {
-      if (this.element.dataset.resizing) {
-        delete this.element.dataset.resizing;
-      }
-    };
-
-    document.addEventListener('touchmove', this.onTouchMove, { passive: false });
-    document.addEventListener('touchend', this.onTouchEnd);
-    document.addEventListener('mouseup', this.onDocMouseUp);
+    }
   }
 
 
@@ -402,18 +429,6 @@ export class Panel {
     if (this.tooltipCloseHandler) {
       document.removeEventListener('click', this.tooltipCloseHandler);
       this.tooltipCloseHandler = null;
-    }
-    if (this.onTouchMove) {
-      document.removeEventListener('touchmove', this.onTouchMove);
-      this.onTouchMove = null;
-    }
-    if (this.onTouchEnd) {
-      document.removeEventListener('touchend', this.onTouchEnd);
-      this.onTouchEnd = null;
-    }
-    if (this.onDocMouseUp) {
-      document.removeEventListener('mouseup', this.onDocMouseUp);
-      this.onDocMouseUp = null;
     }
   }
 }

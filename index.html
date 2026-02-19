@@ -44,6 +44,53 @@
     <meta name="twitter:site" content="@worldmonitorapp" />
     <meta name="twitter:creator" content="@eliehabib" />
 
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/favico/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favico/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favico/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favico/apple-touch-icon.png" />
+
+    <!-- Resource hints for faster loading -->
+    <link rel="preconnect" href="https://api.maptiler.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" href="/data/countries.geojson" as="fetch" crossorigin />
+
+    <!-- Theme: apply stored preference before first paint to prevent FOUC -->
+    <script>(function(){try{var t=localStorage.getItem('worldmonitor-theme');if(t==='light')document.documentElement.dataset.theme='light';}catch(e){}document.documentElement.classList.add('no-transition');})()</script>
+
+    <!-- Critical CSS for first paint (header, grid, panel shells, dark theme) -->
+    <style>
+      :root {
+        --bg: #0a0a0a;
+        --bg-secondary: #111;
+        --surface: #141414;
+        --border: #2a2a2a;
+        --text: #e8e8e8;
+        --text-secondary: #ccc;
+        --text-dim: #888;
+        --panel-bg: #141414;
+        --panel-border: #2a2a2a;
+        --font-body: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+      }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body { background: var(--bg); color: var(--text); font-family: var(--font-body); }
+      #app { min-height: 100vh; }
+      .header { display: flex; align-items: center; padding: 4px 12px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); gap: 8px; font-size: 11px; height: 32px; }
+      .panels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1px; padding: 1px; }
+      .panel { background: var(--panel-bg); border: 1px solid var(--panel-border); display: flex; flex-direction: column; min-height: 200px; max-height: 400px; }
+      .panel-header { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-bottom: 1px solid var(--border); font-size: 11px; min-height: 28px; }
+      .panel-content { flex: 1; overflow-y: auto; padding: 8px; }
+      .map-section { height: 45vh; min-height: 300px; position: relative; background: #020a08; }
+      /* Loading skeleton */
+      .panel-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 12px; }
+    </style>
+    <!-- Styles -->
+    <link rel="preload" href="/src/styles/main.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="/src/styles/main.css" /></noscript>
+  </head>
+  <body>
+    <div id="app"></div>
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
     {
@@ -83,22 +130,6 @@
       "keywords": "AI, OSINT, intelligence dashboard, geopolitical, real-time monitoring, situation awareness, AI-powered"
     }
     </script>
-
-    <!-- Favicons -->
-    <link rel="icon" type="image/x-icon" href="/favico/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favico/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favico/favicon-16x16.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/favico/apple-touch-icon.png" />
-
-
-    <!-- Theme: apply stored preference before first paint to prevent FOUC -->
-    <script>(function(){try{var t=localStorage.getItem('worldmonitor-theme');if(t==='light')document.documentElement.dataset.theme='light';}catch(e){}document.documentElement.classList.add('no-transition');})()</script>
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="/src/styles/main.css" />
-  </head>
-  <body>
-    <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

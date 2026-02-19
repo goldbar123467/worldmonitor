@@ -1,4 +1,6 @@
-import type { NewsItem, Monitor, PanelConfig, MapLayers, RelatedAsset, InternetOutage, SocialUnrestEvent, MilitaryFlight, MilitaryVessel, MilitaryFlightCluster, MilitaryVesselCluster, CyberThreat } from '@/types';
+import type { NewsItem, Monitor, PanelConfig, MapLayers, RelatedAsset, InternetOutage, SocialUnrestEvent, MilitaryFlight, MilitaryVessel, MilitaryFlightCluster, MilitaryVesselCluster, CyberThreat, Hotspot, ConflictZone, MilitaryBase, UnderseaCable, NuclearFacility, Pipeline, AIDataCenter, GammaIrradiator, TechCompany, AIResearchLab, StartupEcosystem } from '@/types';
+import type { TechHQ, Accelerator } from '@/config/tech-geo';
+import type { StockExchange, FinancialCenter, CentralBank, CommodityHub } from '@/config/finance-geo';
 import {
   FEEDS,
   INTEL_SOURCES,
@@ -21,7 +23,7 @@ import { ingestProtests, ingestFlights, ingestVessels, ingestEarthquakes, detect
 import { signalAggregator } from '@/services/signal-aggregator';
 import { updateAndCheck } from '@/services/temporal-baseline';
 import { fetchAllFires, flattenFires, computeRegionStats } from '@/services/firms-satellite';
-import { SatelliteFiresPanel } from '@/components/SatelliteFiresPanel';
+import type { SatelliteFiresPanel } from '@/components/SatelliteFiresPanel';
 import { analyzeFlightsForSurge, surgeAlertToSignal, detectForeignMilitaryPresence, foreignPresenceToSignal, type TheaterPostureSummary } from '@/services/military-surge';
 import { fetchCachedTheaterPosture } from '@/services/cached-theater-posture';
 import { ingestProtestsForCII, ingestMilitaryForCII, ingestNewsForCII, ingestOutagesForCII, ingestConflictsForCII, ingestUcdpForCII, ingestHapiForCII, ingestDisplacementForCII, ingestClimateForCII, startLearning, isInLearningMode, calculateCII, getCountryData, TIER1_COUNTRIES } from '@/services/country-instability';
@@ -42,61 +44,40 @@ import { mountCommunityWidget } from '@/components/CommunityWidget';
 import { CountryTimeline, type TimelineEvent } from '@/components/CountryTimeline';
 import { escapeHtml } from '@/utils/sanitize';
 import type { ParsedMapUrlState } from '@/utils';
-import {
-  MapContainer,
-  type MapView,
-  type TimeRange,
-  NewsPanel,
-  MarketPanel,
-  HeatmapPanel,
-  CommoditiesPanel,
-  CryptoPanel,
-  PredictionPanel,
-  MonitorPanel,
-  Panel,
-  SignalModal,
-  PlaybackControl,
-  StatusPanel,
-  EconomicPanel,
-  SearchModal,
-  MobileWarningModal,
-  PizzIntIndicator,
-  GdeltIntelPanel,
-  LiveNewsPanel,
-  LiveWebcamsPanel,
-  CIIPanel,
-  CascadePanel,
-  StrategicRiskPanel,
-  StrategicPosturePanel,
-  IntelligenceGapBadge,
-  TechEventsPanel,
-  ServiceStatusPanel,
-  RuntimeConfigPanel,
-  InsightsPanel,
-  TechReadinessPanel,
-  MacroSignalsPanel,
-  ETFFlowsPanel,
-  StablecoinPanel,
-  UcdpEventsPanel,
-  DisplacementPanel,
-  ClimateAnomalyPanel,
-  PopulationExposurePanel,
-  InvestmentsPanel,
-  LanguageSelector,
-} from '@/components';
+import { MapContainer, type MapView, type TimeRange } from '@/components/MapContainer';
+import { NewsPanel } from '@/components/NewsPanel';
+import { MarketPanel, HeatmapPanel, CommoditiesPanel, CryptoPanel } from '@/components/MarketPanel';
+import { PredictionPanel } from '@/components/PredictionPanel';
+import { MonitorPanel } from '@/components/MonitorPanel';
+import { Panel } from '@/components/Panel';
+import { SignalModal } from '@/components/SignalModal';
+import { PlaybackControl } from '@/components/PlaybackControl';
+import { StatusPanel } from '@/components/StatusPanel';
+import { EconomicPanel } from '@/components/EconomicPanel';
+import { SearchModal } from '@/components/SearchModal';
+import { MobileWarningModal } from '@/components/MobileWarningModal';
+import { PizzIntIndicator } from '@/components/PizzIntIndicator';
+import { LiveNewsPanel } from '@/components/LiveNewsPanel';
+import type { CIIPanel } from '@/components/CIIPanel';
+import type { StrategicPosturePanel } from '@/components/StrategicPosturePanel';
+import { IntelligenceGapBadge } from '@/components/IntelligenceGapBadge';
+import { TechEventsPanel } from '@/components/TechEventsPanel';
+import { ServiceStatusPanel } from '@/components/ServiceStatusPanel';
+import { RuntimeConfigPanel } from '@/components/RuntimeConfigPanel';
+import { InsightsPanel } from '@/components/InsightsPanel';
+import { TechReadinessPanel } from '@/components/TechReadinessPanel';
+import { MacroSignalsPanel } from '@/components/MacroSignalsPanel';
+import { ETFFlowsPanel } from '@/components/ETFFlowsPanel';
+import { StablecoinPanel } from '@/components/StablecoinPanel';
+import type { UcdpEventsPanel } from '@/components/UcdpEventsPanel';
+import type { DisplacementPanel } from '@/components/DisplacementPanel';
+import type { ClimateAnomalyPanel } from '@/components/ClimateAnomalyPanel';
+import type { PopulationExposurePanel } from '@/components/PopulationExposurePanel';
+import { LanguageSelector } from '@/components/LanguageSelector';
 import type { SearchResult } from '@/components/SearchModal';
 import { collectStoryData } from '@/services/story-data';
 import { renderStoryToCanvas } from '@/services/story-renderer';
 import { openStoryModal } from '@/components/StoryModal';
-import { INTEL_HOTSPOTS, CONFLICT_ZONES, MILITARY_BASES, UNDERSEA_CABLES, NUCLEAR_FACILITIES } from '@/config/geo';
-import { PIPELINES } from '@/config/pipelines';
-import { AI_DATA_CENTERS } from '@/config/ai-datacenters';
-import { GAMMA_IRRADIATORS } from '@/config/irradiators';
-import { TECH_COMPANIES } from '@/config/tech-companies';
-import { AI_RESEARCH_LABS } from '@/config/ai-research-labs';
-import { STARTUP_ECOSYSTEMS } from '@/config/startup-ecosystems';
-import { TECH_HQS, ACCELERATORS } from '@/config/tech-geo';
-import { STOCK_EXCHANGES, FINANCIAL_CENTERS, CENTRAL_BANKS, COMMODITY_HUBS } from '@/config/finance-geo';
 import { isDesktopRuntime } from '@/services/runtime';
 import { isFeatureAvailable } from '@/services/runtime-config';
 import { invokeTauri } from '@/services/tauri-bridge';
@@ -175,10 +156,13 @@ export class App {
   private mapFlashCache: Map<string, number> = new Map();
   private readonly MAP_FLASH_COOLDOWN_MS = 10 * 60 * 1000;
   private initialLoadComplete = false;
+  private _cachedHotspots: Hotspot[] | null = null;
+  private _cachedConflictZones: ConflictZone[] | null = null;
   private criticalBannerEl: HTMLElement | null = null;
   private countryBriefPage: CountryBriefPage | null = null;
   private countryTimeline: CountryTimeline | null = null;
   private findingsBadge: IntelligenceGapBadge | null = null;
+  private panelObserver: IntersectionObserver | null = null;
   private pendingDeepLinkCountry: string | null = null;
   private briefRequestToken = 0;
   private readonly isDesktopApp = isDesktopRuntime();
@@ -299,11 +283,12 @@ export class App {
   }
 
   public async init(): Promise<void> {
-    await initDB();
-    await initI18n();
+    // Render layout immediately — t() returns key strings as fallback before i18n loads
+    this.renderLayout();
+    this.startHeaderClock();
 
-    // Initialize ML worker (desktop only - automatically disabled on mobile)
-    await mlWorker.init();
+    // Parallelize independent init tasks (was 3 serial awaits)
+    await Promise.allSettled([initDB(), initI18n(), mlWorker.init()]);
 
     // Check AIS configuration before init
     if (!isAisConfigured()) {
@@ -311,9 +296,6 @@ export class App {
     } else if (this.mapLayers.ais) {
       initAisStream();
     }
-
-    this.renderLayout();
-    this.startHeaderClock();
     this.signalModal = new SignalModal();
     this.signalModal.setLocationClickHandler((lat, lon) => {
       this.map?.setCenter(lat, lon, 4);
@@ -344,8 +326,8 @@ export class App {
     this.pendingDeepLinkCountry = initState.country ?? null;
     this.setupUrlStateSync();
     this.syncDataFreshnessWithLayers();
-    await preloadCountryGeometry();
-    await this.loadAllData();
+    // Parallelize geometry preload with data loading
+    await Promise.all([preloadCountryGeometry(), this.loadAllData()]);
 
     // Start CII learning mode after first data load
     startLearning();
@@ -1179,8 +1161,52 @@ export class App {
         };
     this.searchModal = new SearchModal(this.container, searchOptions);
 
+    // Dynamically import variant-specific config data to enable tree-shaking
+    this.loadSearchSources();
+
+    // Register countries for all variants
+    this.searchModal.registerSource('country', this.buildCountrySearchItems());
+
+    // Handle result selection
+    this.searchModal.setOnSelect((result) => this.handleSearchResult(result));
+
+    // Global keyboard shortcut
+    this.boundKeydownHandler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        if (this.searchModal?.isOpen()) {
+          this.searchModal.close();
+        } else {
+          // Update search index with latest data before opening
+          this.updateSearchIndex();
+          this.searchModal?.open();
+        }
+      }
+    };
+    document.addEventListener('keydown', this.boundKeydownHandler);
+  }
+
+  /** Dynamically import variant-specific config data for search sources */
+  private async loadSearchSources(): Promise<void> {
+    if (!this.searchModal) return;
+
     if (SITE_VARIANT === 'tech') {
-      // Tech variant: tech-specific sources
+      const [
+        { TECH_COMPANIES },
+        { AI_RESEARCH_LABS },
+        { STARTUP_ECOSYSTEMS },
+        { AI_DATA_CENTERS },
+        { UNDERSEA_CABLES },
+        { TECH_HQS, ACCELERATORS },
+      ] = await Promise.all([
+        import('@/config/tech-companies'),
+        import('@/config/ai-research-labs'),
+        import('@/config/startup-ecosystems'),
+        import('@/config/ai-datacenters'),
+        import('@/config/geo'),
+        import('@/config/tech-geo'),
+      ]);
+
       this.searchModal.registerSource('techcompany', TECH_COMPANIES.map(c => ({
         id: c.id,
         title: c.name,
@@ -1216,7 +1242,6 @@ export class App {
         data: c,
       })));
 
-      // Register Tech HQs (unicorns, FAANG, public companies from map)
       this.searchModal.registerSource('techhq', TECH_HQS.map(h => ({
         id: h.id,
         title: h.company,
@@ -1224,7 +1249,6 @@ export class App {
         data: h,
       })));
 
-      // Register Accelerators
       this.searchModal.registerSource('accelerator', ACCELERATORS.map(a => ({
         id: a.id,
         title: a.name,
@@ -1233,6 +1257,22 @@ export class App {
       })));
     } else {
       // Full variant: geopolitical sources
+      const [
+        { INTEL_HOTSPOTS, CONFLICT_ZONES, MILITARY_BASES, UNDERSEA_CABLES, NUCLEAR_FACILITIES },
+        { PIPELINES },
+        { AI_DATA_CENTERS },
+        { GAMMA_IRRADIATORS },
+      ] = await Promise.all([
+        import('@/config/geo'),
+        import('@/config/pipelines'),
+        import('@/config/ai-datacenters'),
+        import('@/config/irradiators'),
+      ]);
+
+      // Cache for findFlashLocation
+      this._cachedHotspots = INTEL_HOTSPOTS;
+      this._cachedConflictZones = CONFLICT_ZONES;
+
       this.searchModal.registerSource('hotspot', INTEL_HOTSPOTS.map(h => ({
         id: h.id,
         title: h.name,
@@ -1291,7 +1331,8 @@ export class App {
     }
 
     if (SITE_VARIANT === 'finance') {
-      // Finance variant: market-specific sources
+      const { STOCK_EXCHANGES, FINANCIAL_CENTERS, CENTRAL_BANKS, COMMODITY_HUBS } = await import('@/config/finance-geo');
+
       this.searchModal.registerSource('exchange', STOCK_EXCHANGES.map(e => ({
         id: e.id,
         title: `${e.shortName} - ${e.name}`,
@@ -1320,27 +1361,6 @@ export class App {
         data: h,
       })));
     }
-
-    // Register countries for all variants
-    this.searchModal.registerSource('country', this.buildCountrySearchItems());
-
-    // Handle result selection
-    this.searchModal.setOnSelect((result) => this.handleSearchResult(result));
-
-    // Global keyboard shortcut
-    this.boundKeydownHandler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        if (this.searchModal?.isOpen()) {
-          this.searchModal.close();
-        } else {
-          // Update search index with latest data before opening
-          this.updateSearchIndex();
-          this.searchModal?.open();
-        }
-      }
-    };
-    document.addEventListener('keydown', this.boundKeydownHandler);
   }
 
   private handleSearchResult(result: SearchResult): void {
@@ -1354,7 +1374,7 @@ export class App {
       }
       case 'hotspot': {
         // Trigger map popup for hotspot
-        const hotspot = result.data as typeof INTEL_HOTSPOTS[0];
+        const hotspot = result.data as Hotspot;
         this.map?.setView('global');
         setTimeout(() => {
           this.map?.triggerHotspotClick(hotspot.id);
@@ -1362,7 +1382,7 @@ export class App {
         break;
       }
       case 'conflict': {
-        const conflict = result.data as typeof CONFLICT_ZONES[0];
+        const conflict = result.data as ConflictZone;
         this.map?.setView('global');
         setTimeout(() => {
           this.map?.triggerConflictClick(conflict.id);
@@ -1378,7 +1398,7 @@ export class App {
         break;
       }
       case 'base': {
-        const base = result.data as typeof MILITARY_BASES[0];
+        const base = result.data as MilitaryBase;
         this.map?.setView('global');
         setTimeout(() => {
           this.map?.triggerBaseClick(base.id);
@@ -1386,7 +1406,7 @@ export class App {
         break;
       }
       case 'pipeline': {
-        const pipeline = result.data as typeof PIPELINES[0];
+        const pipeline = result.data as Pipeline;
         this.map?.setView('global');
         this.map?.enableLayer('pipelines');
         this.mapLayers.pipelines = true;
@@ -1396,7 +1416,7 @@ export class App {
         break;
       }
       case 'cable': {
-        const cable = result.data as typeof UNDERSEA_CABLES[0];
+        const cable = result.data as UnderseaCable;
         this.map?.setView('global');
         this.map?.enableLayer('cables');
         this.mapLayers.cables = true;
@@ -1406,7 +1426,7 @@ export class App {
         break;
       }
       case 'datacenter': {
-        const dc = result.data as typeof AI_DATA_CENTERS[0];
+        const dc = result.data as AIDataCenter;
         this.map?.setView('global');
         this.map?.enableLayer('datacenters');
         this.mapLayers.datacenters = true;
@@ -1416,7 +1436,7 @@ export class App {
         break;
       }
       case 'nuclear': {
-        const nuc = result.data as typeof NUCLEAR_FACILITIES[0];
+        const nuc = result.data as NuclearFacility;
         this.map?.setView('global');
         this.map?.enableLayer('nuclear');
         this.mapLayers.nuclear = true;
@@ -1426,7 +1446,7 @@ export class App {
         break;
       }
       case 'irradiator': {
-        const irr = result.data as typeof GAMMA_IRRADIATORS[0];
+        const irr = result.data as GammaIrradiator;
         this.map?.setView('global');
         this.map?.enableLayer('irradiators');
         this.mapLayers.irradiators = true;
@@ -1441,7 +1461,7 @@ export class App {
         this.map?.setView('global');
         break;
       case 'techcompany': {
-        const company = result.data as typeof TECH_COMPANIES[0];
+        const company = result.data as TechCompany;
         this.map?.setView('global');
         this.map?.enableLayer('techHQs');
         this.mapLayers.techHQs = true;
@@ -1451,7 +1471,7 @@ export class App {
         break;
       }
       case 'ailab': {
-        const lab = result.data as typeof AI_RESEARCH_LABS[0];
+        const lab = result.data as AIResearchLab;
         this.map?.setView('global');
         setTimeout(() => {
           this.map?.setCenter(lab.lat, lab.lon, 4);
@@ -1459,7 +1479,7 @@ export class App {
         break;
       }
       case 'startup': {
-        const ecosystem = result.data as typeof STARTUP_ECOSYSTEMS[0];
+        const ecosystem = result.data as StartupEcosystem;
         this.map?.setView('global');
         this.map?.enableLayer('startupHubs');
         this.mapLayers.startupHubs = true;
@@ -1474,7 +1494,7 @@ export class App {
         this.mapLayers.techEvents = true;
         break;
       case 'techhq': {
-        const hq = result.data as typeof TECH_HQS[0];
+        const hq = result.data as TechHQ;
         this.map?.setView('global');
         this.map?.enableLayer('techHQs');
         this.mapLayers.techHQs = true;
@@ -1484,7 +1504,7 @@ export class App {
         break;
       }
       case 'accelerator': {
-        const acc = result.data as typeof ACCELERATORS[0];
+        const acc = result.data as Accelerator;
         this.map?.setView('global');
         this.map?.enableLayer('accelerators');
         this.mapLayers.accelerators = true;
@@ -1494,7 +1514,7 @@ export class App {
         break;
       }
       case 'exchange': {
-        const exchange = result.data as typeof STOCK_EXCHANGES[0];
+        const exchange = result.data as StockExchange;
         this.map?.setView('global');
         this.map?.enableLayer('stockExchanges');
         this.mapLayers.stockExchanges = true;
@@ -1504,7 +1524,7 @@ export class App {
         break;
       }
       case 'financialcenter': {
-        const fc = result.data as typeof FINANCIAL_CENTERS[0];
+        const fc = result.data as FinancialCenter;
         this.map?.setView('global');
         this.map?.enableLayer('financialCenters');
         this.mapLayers.financialCenters = true;
@@ -1514,7 +1534,7 @@ export class App {
         break;
       }
       case 'centralbank': {
-        const bank = result.data as typeof CENTRAL_BANKS[0];
+        const bank = result.data as CentralBank;
         this.map?.setView('global');
         this.map?.enableLayer('centralBanks');
         this.mapLayers.centralBanks = true;
@@ -1524,7 +1544,7 @@ export class App {
         break;
       }
       case 'commodityhub': {
-        const hub = result.data as typeof COMMODITY_HUBS[0];
+        const hub = result.data as CommodityHub;
         this.map?.setView('global');
         this.map?.enableLayer('commodityHubs');
         this.mapLayers.commodityHubs = true;
@@ -1934,6 +1954,39 @@ export class App {
     disconnectAisStream();
   }
 
+  /**
+   * Lazily load a panel using dynamic import() and requestIdleCallback.
+   * The panel is created during idle time (or after a short timeout as
+   * fallback), then appended to the grid with draggable + observer wiring.
+   */
+  private deferPanel(
+    panelsGrid: HTMLElement,
+    key: string,
+    importFn: () => Promise<Panel>,
+  ): void {
+    const create = async (): Promise<void> => {
+      try {
+        const panel = await importFn();
+        this.panels[key] = panel;
+        const el = panel.getElement();
+        this.makeDraggable(el, key);
+        panelsGrid.appendChild(el);
+        const config = this.panelSettings[key];
+        if (config) panel.toggle(config.enabled);
+        this.panelObserver?.observe(el);
+      } catch (e) {
+        console.warn(`[App] Failed to lazy-load panel "${key}":`, e);
+      }
+    };
+
+    if ('requestIdleCallback' in window) {
+      (window as unknown as { requestIdleCallback: (cb: () => void) => void })
+        .requestIdleCallback(() => void create());
+    } else {
+      setTimeout(() => void create(), 100);
+    }
+  }
+
   private createPanels(): void {
     const panelsGrid = document.getElementById('panelsGrid')!;
 
@@ -2133,71 +2186,101 @@ export class App {
       this.panels[panelKey] = panel;
     }
 
-    // Geopolitical-only panels (not needed for tech variant)
+    // Geopolitical-only panels — lazy loaded for code splitting (full variant only)
     if (SITE_VARIANT === 'full') {
-      const gdeltIntelPanel = new GdeltIntelPanel();
-      this.panels['gdelt-intel'] = gdeltIntelPanel;
-
-      const ciiPanel = new CIIPanel();
-      ciiPanel.setShareStoryHandler((code, name) => {
-        this.openCountryStory(code, name);
+      this.deferPanel(panelsGrid, 'gdelt-intel', async () => {
+        const { GdeltIntelPanel: Cls } = await import('@/components/GdeltIntelPanel');
+        return new Cls();
       });
-      this.panels['cii'] = ciiPanel;
 
-      const cascadePanel = new CascadePanel();
-      this.panels['cascade'] = cascadePanel;
-
-      const satelliteFiresPanel = new SatelliteFiresPanel();
-      this.panels['satellite-fires'] = satelliteFiresPanel;
-
-      const strategicRiskPanel = new StrategicRiskPanel();
-      strategicRiskPanel.setLocationClickHandler((lat, lon) => {
-        this.map?.setCenter(lat, lon, 4);
+      this.deferPanel(panelsGrid, 'cii', async () => {
+        const { CIIPanel: Cls } = await import('@/components/CIIPanel');
+        const panel = new Cls();
+        panel.setShareStoryHandler((code: string, name: string) => {
+          this.openCountryStory(code, name);
+        });
+        return panel;
       });
-      this.panels['strategic-risk'] = strategicRiskPanel;
 
-      const strategicPosturePanel = new StrategicPosturePanel();
-      strategicPosturePanel.setLocationClickHandler((lat, lon) => {
-        console.log('[App] StrategicPosture handler called:', { lat, lon, hasMap: !!this.map });
-        this.map?.setCenter(lat, lon, 4);
+      this.deferPanel(panelsGrid, 'cascade', async () => {
+        const { CascadePanel: Cls } = await import('@/components/CascadePanel');
+        return new Cls();
       });
-      this.panels['strategic-posture'] = strategicPosturePanel;
 
-      const ucdpEventsPanel = new UcdpEventsPanel();
-      ucdpEventsPanel.setEventClickHandler((lat, lon) => {
-        this.map?.setCenter(lat, lon, 5);
+      this.deferPanel(panelsGrid, 'satellite-fires', async () => {
+        const { SatelliteFiresPanel: Cls } = await import('@/components/SatelliteFiresPanel');
+        return new Cls();
       });
-      this.panels['ucdp-events'] = ucdpEventsPanel;
 
-      const displacementPanel = new DisplacementPanel();
-      displacementPanel.setCountryClickHandler((lat, lon) => {
-        this.map?.setCenter(lat, lon, 4);
+      this.deferPanel(panelsGrid, 'strategic-risk', async () => {
+        const { StrategicRiskPanel: Cls } = await import('@/components/StrategicRiskPanel');
+        const panel = new Cls();
+        panel.setLocationClickHandler((lat: number, lon: number) => {
+          this.map?.setCenter(lat, lon, 4);
+        });
+        return panel;
       });
-      this.panels['displacement'] = displacementPanel;
 
-      const climatePanel = new ClimateAnomalyPanel();
-      climatePanel.setZoneClickHandler((lat, lon) => {
-        this.map?.setCenter(lat, lon, 4);
+      this.deferPanel(panelsGrid, 'strategic-posture', async () => {
+        const { StrategicPosturePanel: Cls } = await import('@/components/StrategicPosturePanel');
+        const panel = new Cls();
+        panel.setLocationClickHandler((lat: number, lon: number) => {
+          this.map?.setCenter(lat, lon, 4);
+        });
+        return panel;
       });
-      this.panels['climate'] = climatePanel;
 
-      const populationExposurePanel = new PopulationExposurePanel();
-      this.panels['population-exposure'] = populationExposurePanel;
+      this.deferPanel(panelsGrid, 'ucdp-events', async () => {
+        const { UcdpEventsPanel: Cls } = await import('@/components/UcdpEventsPanel');
+        const panel = new Cls();
+        panel.setEventClickHandler((lat: number, lon: number) => {
+          this.map?.setCenter(lat, lon, 5);
+        });
+        return panel;
+      });
+
+      this.deferPanel(panelsGrid, 'displacement', async () => {
+        const { DisplacementPanel: Cls } = await import('@/components/DisplacementPanel');
+        const panel = new Cls();
+        panel.setCountryClickHandler((lat: number, lon: number) => {
+          this.map?.setCenter(lat, lon, 4);
+        });
+        return panel;
+      });
+
+      this.deferPanel(panelsGrid, 'climate', async () => {
+        const { ClimateAnomalyPanel: Cls } = await import('@/components/ClimateAnomalyPanel');
+        const panel = new Cls();
+        panel.setZoneClickHandler((lat: number, lon: number) => {
+          this.map?.setCenter(lat, lon, 4);
+        });
+        return panel;
+      });
+
+      this.deferPanel(panelsGrid, 'population-exposure', async () => {
+        const { PopulationExposurePanel: Cls } = await import('@/components/PopulationExposurePanel');
+        return new Cls();
+      });
     }
 
-    // GCC Investments Panel (finance variant)
+    // GCC Investments Panel — lazy loaded (finance variant only)
     if (SITE_VARIANT === 'finance') {
-      const investmentsPanel = new InvestmentsPanel((inv) => {
-        focusInvestmentOnMap(this.map, this.mapLayers, inv.lat, inv.lon);
+      this.deferPanel(panelsGrid, 'gcc-investments', async () => {
+        const { InvestmentsPanel: Cls } = await import('@/components/InvestmentsPanel');
+        return new Cls((inv: { lat: number; lon: number }) => {
+          focusInvestmentOnMap(this.map, this.mapLayers, inv.lat, inv.lon);
+        });
       });
-      this.panels['gcc-investments'] = investmentsPanel;
     }
 
     const liveNewsPanel = new LiveNewsPanel();
     this.panels['live-news'] = liveNewsPanel;
 
-    const liveWebcamsPanel = new LiveWebcamsPanel();
-    this.panels['live-webcams'] = liveWebcamsPanel;
+    // Live webcams — lazy loaded for code splitting
+    this.deferPanel(panelsGrid, 'live-webcams', async () => {
+      const { LiveWebcamsPanel: Cls } = await import('@/components/LiveWebcamsPanel');
+      return new Cls();
+    });
 
     // Tech Events Panel (tech variant only - but create for all to allow toggling)
     this.panels['events'] = new TechEventsPanel('events');
@@ -2280,6 +2363,17 @@ export class App {
         panelsGrid.appendChild(el);
       }
     });
+
+    // Observe panels for offscreen animation pausing
+    // Stored as class property so deferred (lazy-loaded) panels can also be observed
+    if ('IntersectionObserver' in window) {
+      this.panelObserver = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          entry.target.classList.toggle('panel-offscreen', !entry.isIntersecting);
+        }
+      }, { rootMargin: '100px' });
+      panelsGrid.querySelectorAll('.panel').forEach(el => this.panelObserver!.observe(el));
+    }
 
     this.map.onTimeRangeChanged((range) => {
       this.currentTimeRange = range;
@@ -3023,6 +3117,9 @@ export class App {
   }
 
   private findFlashLocation(title: string): { lat: number; lon: number } | null {
+    // Data loaded dynamically in loadSearchSources(); null until ready
+    if (!this._cachedHotspots || !this._cachedConflictZones) return null;
+
     const titleLower = title.toLowerCase();
     let bestMatch: { lat: number; lon: number; matches: number } | null = null;
 
@@ -3038,14 +3135,14 @@ export class App {
       return matches;
     };
 
-    for (const hotspot of INTEL_HOTSPOTS) {
+    for (const hotspot of this._cachedHotspots) {
       const matches = countKeywordMatches(hotspot.keywords);
       if (matches > 0 && (!bestMatch || matches > bestMatch.matches)) {
         bestMatch = { lat: hotspot.lat, lon: hotspot.lon, matches };
       }
     }
 
-    for (const conflict of CONFLICT_ZONES) {
+    for (const conflict of this._cachedConflictZones) {
       const matches = countKeywordMatches(conflict.keywords);
       if (matches > 0 && (!bestMatch || matches > bestMatch.matches)) {
         bestMatch = { lat: conflict.center[1], lon: conflict.center[0], matches };

@@ -1,4 +1,5 @@
 import { getCorsHeaders, isDisallowedOrigin } from './_cors.js';
+import { getCachedJson, setCachedJson } from './_upstash-cache.js';
 
 export const config = { runtime: 'edge' };
 
@@ -208,6 +209,21 @@ export default async function handler(req) {
       });
     }
 
+    // Check Upstash cache first (5-minute TTL matching Cache-Control)
+    const cacheKey = `rss:${feedUrl}`;
+    const cached = await getCachedJson(cacheKey);
+    if (cached) {
+      return new Response(cached, {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/xml',
+          'Cache-Control': 'public, max-age=300, s-maxage=300, stale-while-revalidate=60',
+          'X-Cache': 'HIT',
+          ...corsHeaders,
+        },
+      });
+    }
+
     // Google News is slow - use longer timeout
     const isGoogleNews = feedUrl.includes('news.google.com');
     const timeout = isGoogleNews ? 20000 : 12000;
@@ -240,6 +256,10 @@ export default async function handler(req) {
             },
           }, timeout);
           const data = await redirectResponse.text();
+          // Cache successful redirect responses
+          if (redirectResponse.status >= 200 && redirectResponse.status < 300) {
+            await setCachedJson(cacheKey, data, 300).catch(() => {});
+          }
           return new Response(data, {
             status: redirectResponse.status,
             headers: {
@@ -258,6 +278,10 @@ export default async function handler(req) {
     }
 
     const data = await response.text();
+    // Cache successful responses in Upstash
+    if (response.status >= 200 && response.status < 300) {
+      await setCachedJson(cacheKey, data, 300).catch(() => {});
+    }
     return new Response(data, {
       status: response.status,
       headers: {

@@ -80,29 +80,15 @@ export default async function handler(req) {
   }
 
   // Gamma API is behind Cloudflare which blocks server-side TLS connections
-  // (JA3 fingerprint detection). Only browser-originated requests succeed.
-  // We still try in case Cloudflare policy changes, but gracefully return empty on failure.
-  try {
-    const data = await tryFetch(buildUrl(GAMMA_BASE, endpoint, params));
-    return new Response(data, {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        ...cors,
-        'Cache-Control': 'public, max-age=120, s-maxage=120, stale-while-revalidate=60',
-        'X-Polymarket-Source': 'gamma',
-      },
-    });
-  } catch (err) {
-    // Expected: Cloudflare blocks non-browser TLS connections
-    return new Response(JSON.stringify([]), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        ...cors,
-        'X-Polymarket-Error': err.message,
-        'Cache-Control': 'public, max-age=300, s-maxage=300, stale-while-revalidate=60',
-      },
-    });
-  }
+  // (JA3 fingerprint detection). Short-circuit to avoid 8s timeout on every request.
+  // The client already falls back to the Railway relay for Polymarket data.
+  return new Response(JSON.stringify([]), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+      ...cors,
+      'X-Polymarket-Source': 'short-circuited',
+      'Cache-Control': 'public, max-age=300, s-maxage=300, stale-while-revalidate=60',
+    },
+  });
 }

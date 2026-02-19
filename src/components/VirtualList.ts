@@ -340,10 +340,8 @@ export class WindowedList<T> {
     const chunks: number[] = [];
 
     for (const [index, element] of this.chunkElements) {
-      const rect = element.getBoundingClientRect();
-      const containerRect = this.container.getBoundingClientRect();
-      const relativeTop = rect.top - containerRect.top + scrollTop;
-      const relativeBottom = relativeTop + rect.height;
+      const relativeTop = element.offsetTop;
+      const relativeBottom = relativeTop + element.offsetHeight;
 
       // Check if chunk is in viewport (with buffer)
       const bufferPx = viewportHeight * this.bufferChunks;

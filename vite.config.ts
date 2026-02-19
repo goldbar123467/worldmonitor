@@ -124,6 +124,195 @@ function htmlVariantPlugin(): Plugin {
   };
 }
 
+function claudeSummarizePlugin(): Plugin {
+  return {
+    name: 'claude-summarize',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        const isGroq = req.url?.startsWith('/api/groq-summarize');
+        const isOpenRouter = req.url?.startsWith('/api/openrouter-summarize');
+        if (!isGroq && !isOpenRouter) {
+          return next();
+        }
+
+        if (req.method === 'OPTIONS') {
+          res.statusCode = 204;
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+          res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+          res.end();
+          return;
+        }
+
+        const anthropicKey = process.env.ANTHROPIC_API_KEY;
+        const openRouterKey = process.env.OPENROUTER_API_KEY;
+        const apiKey = isGroq ? anthropicKey : openRouterKey;
+        const providerName = isGroq ? 'Claude' : 'Kimi';
+
+        if (!apiKey) {
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ summary: null, fallback: true, skipped: true, reason: `${providerName} API key not configured` }));
+          return;
+        }
+
+        try {
+          const body = await new Promise<string>((resolve) => {
+            let data = '';
+            req.on('data', (chunk: Buffer) => { data += chunk; });
+            req.on('end', () => resolve(data));
+          });
+
+          const { headlines, mode = 'brief', geoContext = '', variant = 'full', lang = 'en' } = JSON.parse(body);
+
+          if (!headlines || !Array.isArray(headlines) || headlines.length === 0) {
+            res.statusCode = 400;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: 'Headlines array required' }));
+            return;
+          }
+
+          const headlineText = headlines.slice(0, 8).map((h: string, i: number) => `${i + 1}. ${h}`).join('\n');
+          const isTechVariant = variant === 'tech';
+          const dateContext = `Current date: ${new Date().toISOString().split('T')[0]}.${isTechVariant ? '' : ' Donald Trump is the current US President (second term, inaugurated Jan 2025).'}`;
+          const langInstruction = lang && lang !== 'en' ? `\nIMPORTANT: Output the summary in ${lang.toUpperCase()} language.` : '';
+          const intelSection = geoContext ? `\n\n${geoContext}` : '';
+
+          let systemPrompt: string, userPrompt: string;
+
+          if (mode === 'translate') {
+            const targetLang = variant;
+            systemPrompt = `You are a professional news translator. Translate the following news headlines/summaries into ${targetLang}.\nRules:\n- Maintain the original tone and journalistic style.\n- Do NOT add any conversational filler.\n- Output ONLY the translated text.`;
+            userPrompt = `Translate to ${targetLang}:\n${headlines[0]}`;
+          } else if (mode === 'brief') {
+            systemPrompt = isTechVariant
+              ? `${dateContext}\n\nSummarize the key tech/startup development in 2-3 sentences.\nRules:\n- Focus ONLY on technology, startups, AI, funding, product launches, or developer news\n- Lead with the company/product/technology name\n- Start directly: "OpenAI announced...", "A new $50M Series B..."\n- No bullet points, no meta-commentary${langInstruction}`
+              : `${dateContext}\n\nSummarize the key development in 2-3 sentences.\nRules:\n- Lead with WHAT happened and WHERE - be specific\n- NEVER start with "Breaking news", "Good evening", "Tonight"\n- Start directly with the subject: "Iran's regime...", "The US Treasury..."\n- No bullet points, no meta-commentary${langInstruction}`;
+            userPrompt = `Summarize the top story:\n${headlineText}${intelSection}`;
+          } else if (mode === 'analysis') {
+            systemPrompt = isTechVariant
+              ? `${dateContext}\n\nAnalyze the tech/startup trend in 2-3 sentences.\nRules:\n- Focus ONLY on technology implications\n- Lead with the insight for tech industry`
+              : `${dateContext}\n\nProvide analysis in 2-3 sentences. Be direct and specific.\nRules:\n- Lead with the insight - what's significant and why\n- Connect dots, be specific about implications`;
+            userPrompt = isTechVariant
+              ? `What's the key tech trend or development?\n${headlineText}${intelSection}`
+              : `What's the key pattern or risk?\n${headlineText}${intelSection}`;
+          } else {
+            systemPrompt = isTechVariant
+              ? `${dateContext}\n\nSynthesize tech news in 2 sentences.${langInstruction}`
+              : `${dateContext}\n\nSynthesize in 2 sentences max. Lead with substance.${langInstruction}`;
+            userPrompt = `Key takeaway:\n${headlineText}${intelSection}`;
+          }
+
+          let summary: string | undefined;
+          let tokens = 0;
+          let MODEL: string;
+
+          if (isGroq) {
+            MODEL = 'claude-haiku-4-5-20251001';
+            const response = await fetch('https://api.anthropic.com/v1/messages', {
+              method: 'POST',
+              headers: {
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: MODEL,
+                system: systemPrompt,
+                messages: [{ role: 'user', content: userPrompt }],
+                max_tokens: 120,
+                temperature: 0.3,
+              }),
+            });
+
+            if (!response.ok) {
+              const errorText = await response.text();
+              console.error('[Claude] API error:', response.status, errorText);
+              if (response.status === 429) {
+                res.statusCode = 429;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Rate limited', fallback: true }));
+                return;
+              }
+              res.statusCode = response.status;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: 'Claude API error', fallback: true }));
+              return;
+            }
+
+            const data = await response.json() as { content?: Array<{ type: string; text: string }>; usage?: { input_tokens?: number; output_tokens?: number } };
+            summary = data.content?.[0]?.text?.trim();
+            tokens = (data.usage?.input_tokens || 0) + (data.usage?.output_tokens || 0);
+          } else {
+            MODEL = 'mistralai/mistral-small-3.1-24b-instruct';
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
+                'HTTP-Referer': 'https://worldmonitor.app',
+                'X-Title': 'WorldMonitor',
+              },
+              body: JSON.stringify({
+                model: MODEL,
+                messages: [
+                  { role: 'system', content: systemPrompt },
+                  { role: 'user', content: userPrompt },
+                ],
+                max_tokens: 120,
+                temperature: 0.3,
+              }),
+            });
+
+            if (!response.ok) {
+              const errorText = await response.text();
+              console.error('[Kimi] API error:', response.status, errorText);
+              if (response.status === 429) {
+                res.statusCode = 429;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Rate limited', fallback: true }));
+                return;
+              }
+              res.statusCode = response.status;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ error: 'Kimi API error', fallback: true }));
+              return;
+            }
+
+            const data = await response.json() as { choices?: Array<{ message?: { content?: string } }>; usage?: { total_tokens?: number } };
+            summary = data.choices?.[0]?.message?.content?.trim();
+            tokens = data.usage?.total_tokens || 0;
+          }
+
+          if (!summary) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ error: 'Empty response', fallback: true }));
+            return;
+          }
+
+          console.log(`[${providerName}] ${MODEL} — ${tokens} tokens`);
+
+          res.setHeader('Content-Type', 'application/json');
+          res.setHeader('Cache-Control', 'public, max-age=1800');
+          res.end(JSON.stringify({
+            summary,
+            model: MODEL,
+            provider: 'groq',
+            cached: false,
+            tokens,
+          }));
+
+        } catch (error) {
+          console.error('[Claude] Error:', error);
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ error: (error as Error).message, fallback: true }));
+        }
+      });
+    },
+  };
+}
+
 function youtubeLivePlugin(): Plugin {
   return {
     name: 'youtube-live',
@@ -160,13 +349,122 @@ function youtubeLivePlugin(): Plugin {
   };
 }
 
+function rssProxyPlugin(): Plugin {
+  return {
+    name: 'rss-proxy',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/api/rss-proxy')) {
+          return next();
+        }
+
+        const url = new URL(req.url, 'http://localhost');
+        const feedUrl = url.searchParams.get('url');
+
+        if (!feedUrl) {
+          res.statusCode = 400;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ error: 'Missing url parameter' }));
+          return;
+        }
+
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 15000);
+          const response = await fetch(feedUrl, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+            },
+            signal: controller.signal,
+            redirect: 'follow',
+          });
+          clearTimeout(timeout);
+
+          const data = await response.text();
+          res.statusCode = response.status;
+          res.setHeader('Content-Type', 'application/xml');
+          res.setHeader('Cache-Control', 'public, max-age=300');
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          res.end(data);
+        } catch (error) {
+          const isTimeout = (error as Error).name === 'AbortError';
+          console.error('[RSS Proxy]', feedUrl, (error as Error).message);
+          res.statusCode = isTimeout ? 504 : 502;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ error: isTimeout ? 'Feed timeout' : 'Failed to fetch feed' }));
+        }
+      });
+    },
+  };
+}
+
+function finnhubPlugin(): Plugin {
+  return {
+    name: 'finnhub-proxy',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/api/finnhub')) {
+          return next();
+        }
+
+        const apiKey = process.env.FINNHUB_API_KEY;
+        if (!apiKey) {
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ quotes: [], skipped: true, reason: 'FINNHUB_API_KEY not configured' }));
+          return;
+        }
+
+        const url = new URL(req.url, 'http://localhost');
+        const symbolsParam = url.searchParams.get('symbols');
+        if (!symbolsParam) {
+          res.statusCode = 400;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ error: 'Missing symbols parameter' }));
+          return;
+        }
+
+        const symbols = symbolsParam.split(',').map(s => s.trim().toUpperCase()).filter(s => /^[A-Za-z0-9.^]+$/.test(s)).slice(0, 20);
+        if (symbols.length === 0) {
+          res.statusCode = 400;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ error: 'Invalid symbols' }));
+          return;
+        }
+
+        try {
+          const quotes = await Promise.all(symbols.map(async (symbol) => {
+            try {
+              const resp = await fetch(`https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${apiKey}`);
+              if (!resp.ok) return { symbol, error: `HTTP ${resp.status}` };
+              const d = await resp.json() as Record<string, number>;
+              if (d.c === 0 && d.h === 0 && d.l === 0) return { symbol, error: 'No data' };
+              return { symbol, price: d.c, change: d.d, changePercent: d.dp, high: d.h, low: d.l, open: d.o, previousClose: d.pc, timestamp: d.t };
+            } catch { return { symbol, error: 'Fetch failed' }; }
+          }));
+          res.setHeader('Content-Type', 'application/json');
+          res.setHeader('Cache-Control', 'public, max-age=30');
+          res.end(JSON.stringify({ quotes }));
+        } catch (error) {
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ error: 'Failed to fetch data' }));
+        }
+      });
+    },
+  };
+}
+
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
   plugins: [
     htmlVariantPlugin(),
+    claudeSummarizePlugin(),
     youtubeLivePlugin(),
+    rssProxyPlugin(),
+    finnhubPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: false,
@@ -308,6 +606,7 @@ export default defineConfig({
     port: 3000,
     open: !isE2E,
     hmr: isE2E ? false : undefined,
+    allowedHosts: ['wm.upsidedownatlas.com'],
     watch: {
       ignored: [
         '**/test-results/**',
@@ -316,7 +615,25 @@ export default defineConfig({
       ],
     },
     proxy: {
-      // Yahoo Finance API
+      // Yahoo Finance chart API (must come before /api/yahoo to avoid prefix match)
+      '/api/yahoo-finance': {
+        target: 'https://query1.finance.yahoo.com',
+        changeOrigin: true,
+        rewrite: (path) => {
+          const url = new URL(path, 'http://localhost');
+          const symbol = url.searchParams.get('symbol') || '';
+          return `/v8/finance/chart/${encodeURIComponent(symbol)}`;
+        },
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+          });
+          proxy.on('error', (err) => {
+            console.log('Yahoo Finance proxy error:', err.message);
+          });
+        },
+      },
+      // Yahoo Finance API (general)
       '/api/yahoo': {
         target: 'https://query1.finance.yahoo.com',
         changeOrigin: true,
@@ -353,12 +670,12 @@ export default defineConfig({
           });
         },
       },
-      // USGS Earthquake API
-      '/api/earthquake': {
+      // USGS Earthquake API — edge function uses /api/earthquakes
+      '/api/earthquakes': {
         target: 'https://earthquake.usgs.gov',
         changeOrigin: true,
         timeout: 30000,
-        rewrite: (path) => path.replace(/^\/api\/earthquake/, ''),
+        rewrite: () => '/earthquakes/feed/v1.0/summary/4.5_day.geojson',
         configure: (proxy) => {
           proxy.on('error', (err) => {
             console.log('Earthquake proxy error:', err.message);

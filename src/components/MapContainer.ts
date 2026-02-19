@@ -66,6 +66,7 @@ export class MapContainer {
   private svgMap: MapComponent | null = null;
   private initialState: MapContainerState;
   private useDeckGL: boolean;
+  private pendingCalls: Array<() => void> = [];
 
   constructor(container: HTMLElement, initialState: MapContainerState) {
     this.container = container;
@@ -97,6 +98,9 @@ export class MapContainer {
         ...this.initialState,
         view: this.initialState.view as DeckMapView,
       });
+      // Flush any callbacks registered before init completed
+      for (const fn of this.pendingCalls) fn();
+      this.pendingCalls.length = 0;
     } else {
       console.log('[MapContainer] Initializing SVG map (mobile/fallback mode)');
       this.container.classList.add('svg-mode');
@@ -341,7 +345,11 @@ export class MapContainer {
   // Callback setters - MapComponent uses different names
   public onHotspotClicked(callback: (hotspot: Hotspot) => void): void {
     if (this.useDeckGL) {
-      this.deckGLMap?.setOnHotspotClick(callback);
+      if (this.deckGLMap) {
+        this.deckGLMap.setOnHotspotClick(callback);
+      } else {
+        this.pendingCalls.push(() => this.deckGLMap!.setOnHotspotClick(callback));
+      }
     } else {
       this.svgMap?.onHotspotClicked(callback);
     }
@@ -349,7 +357,11 @@ export class MapContainer {
 
   public onTimeRangeChanged(callback: (range: TimeRange) => void): void {
     if (this.useDeckGL) {
-      this.deckGLMap?.setOnTimeRangeChange(callback);
+      if (this.deckGLMap) {
+        this.deckGLMap.setOnTimeRangeChange(callback);
+      } else {
+        this.pendingCalls.push(() => this.deckGLMap!.setOnTimeRangeChange(callback));
+      }
     } else {
       this.svgMap?.onTimeRangeChanged(callback);
     }
@@ -357,7 +369,11 @@ export class MapContainer {
 
   public setOnLayerChange(callback: (layer: keyof MapLayers, enabled: boolean) => void): void {
     if (this.useDeckGL) {
-      this.deckGLMap?.setOnLayerChange(callback);
+      if (this.deckGLMap) {
+        this.deckGLMap.setOnLayerChange(callback);
+      } else {
+        this.pendingCalls.push(() => this.deckGLMap!.setOnLayerChange(callback));
+      }
     } else {
       this.svgMap?.setOnLayerChange(callback);
     }
@@ -365,9 +381,14 @@ export class MapContainer {
 
   public onStateChanged(callback: (state: MapContainerState) => void): void {
     if (this.useDeckGL) {
-      this.deckGLMap?.setOnStateChange((state) => {
+      const wrapped = (state: { zoom: number; pan: { x: number; y: number }; view: DeckMapView; layers: MapLayers; timeRange: TimeRange }) => {
         callback({ ...state, view: state.view as MapView });
-      });
+      };
+      if (this.deckGLMap) {
+        this.deckGLMap.setOnStateChange(wrapped);
+      } else {
+        this.pendingCalls.push(() => this.deckGLMap!.setOnStateChange(wrapped));
+      }
     } else {
       this.svgMap?.onStateChanged(callback);
     }
@@ -390,7 +411,11 @@ export class MapContainer {
 
   public initEscalationGetters(): void {
     if (this.useDeckGL) {
-      this.deckGLMap?.initEscalationGetters();
+      if (this.deckGLMap) {
+        this.deckGLMap.initEscalationGetters();
+      } else {
+        this.pendingCalls.push(() => this.deckGLMap!.initEscalationGetters());
+      }
     } else {
       this.svgMap?.initEscalationGetters();
     }
@@ -512,7 +537,11 @@ export class MapContainer {
   // Country click + highlight (deck.gl only)
   public onCountryClicked(callback: (country: CountryClickPayload) => void): void {
     if (this.useDeckGL) {
-      this.deckGLMap?.setOnCountryClick(callback);
+      if (this.deckGLMap) {
+        this.deckGLMap.setOnCountryClick(callback);
+      } else {
+        this.pendingCalls.push(() => this.deckGLMap!.setOnCountryClick(callback));
+      }
     }
   }
 

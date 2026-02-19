@@ -163,6 +163,7 @@ export class App {
   private countryTimeline: CountryTimeline | null = null;
   private findingsBadge: IntelligenceGapBadge | null = null;
   private panelObserver: IntersectionObserver | null = null;
+  private deferredPlaceholders = new Map<string, HTMLElement>();
   private pendingDeepLinkCountry: string | null = null;
   private briefRequestToken = 0;
   private readonly isDesktopApp = isDesktopRuntime();
@@ -1963,17 +1964,32 @@ export class App {
     panelsGrid: HTMLElement,
     key: string,
     importFn: () => Promise<Panel>,
+    onReady?: () => void,
   ): void {
+    // Create a hidden placeholder so panelOrder.forEach can reserve the position
+    const placeholder = document.createElement('div');
+    placeholder.style.display = 'none';
+    placeholder.dataset.deferredPanel = key;
+    this.deferredPlaceholders.set(key, placeholder);
+
     const create = async (): Promise<void> => {
       try {
         const panel = await importFn();
         this.panels[key] = panel;
         const el = panel.getElement();
         this.makeDraggable(el, key);
-        panelsGrid.appendChild(el);
+        // Replace the placeholder at the correct DOM position
+        const ph = this.deferredPlaceholders.get(key);
+        if (ph?.parentNode) {
+          ph.replaceWith(el);
+        } else {
+          panelsGrid.appendChild(el);
+        }
+        this.deferredPlaceholders.delete(key);
         const config = this.panelSettings[key];
         if (config) panel.toggle(config.enabled);
         this.panelObserver?.observe(el);
+        onReady?.();
       } catch (e) {
         console.warn(`[App] Failed to lazy-load panel "${key}":`, e);
       }
@@ -2200,6 +2216,8 @@ export class App {
           this.openCountryStory(code, name);
         });
         return panel;
+      }, () => {
+        void (this.panels['cii'] as CIIPanel)?.refresh();
       });
 
       this.deferPanel(panelsGrid, 'cascade', async () => {
@@ -2210,6 +2228,8 @@ export class App {
       this.deferPanel(panelsGrid, 'satellite-fires', async () => {
         const { SatelliteFiresPanel: Cls } = await import('@/components/SatelliteFiresPanel');
         return new Cls();
+      }, () => {
+        void this.loadFirmsData();
       });
 
       this.deferPanel(panelsGrid, 'strategic-risk', async () => {
@@ -2237,6 +2257,8 @@ export class App {
           this.map?.setCenter(lat, lon, 5);
         });
         return panel;
+      }, () => {
+        this.queueIntelligenceReload();
       });
 
       this.deferPanel(panelsGrid, 'displacement', async () => {
@@ -2246,6 +2268,8 @@ export class App {
           this.map?.setCenter(lat, lon, 4);
         });
         return panel;
+      }, () => {
+        this.queueIntelligenceReload();
       });
 
       this.deferPanel(panelsGrid, 'climate', async () => {
@@ -2255,11 +2279,15 @@ export class App {
           this.map?.setCenter(lat, lon, 4);
         });
         return panel;
+      }, () => {
+        this.queueIntelligenceReload();
       });
 
       this.deferPanel(panelsGrid, 'population-exposure', async () => {
         const { PopulationExposurePanel: Cls } = await import('@/components/PopulationExposurePanel');
         return new Cls();
+      }, () => {
+        this.queueIntelligenceReload();
       });
     }
 
@@ -2361,6 +2389,10 @@ export class App {
         const el = panel.getElement();
         this.makeDraggable(el, key);
         panelsGrid.appendChild(el);
+      } else {
+        // Deferred panel — append its placeholder to reserve the position
+        const placeholder = this.deferredPlaceholders.get(key);
+        if (placeholder) panelsGrid.appendChild(placeholder);
       }
     });
 
@@ -3637,6 +3669,16 @@ export class App {
     earthquakes?: import('@/types').Earthquake[];
   } = {};
   private cyberThreatsCache: CyberThreat[] | null = null;
+
+  private intelligenceReloadQueued = false;
+  private queueIntelligenceReload(): void {
+    if (this.intelligenceReloadQueued) return;
+    this.intelligenceReloadQueued = true;
+    setTimeout(() => {
+      this.intelligenceReloadQueued = false;
+      void this.loadIntelligenceSignals();
+    }, 0);
+  }
 
   /**
    * Load intelligence-critical signals for CII/focal point calculation

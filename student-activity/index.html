@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="World Watch: a self-paced student activity for investigating a global issue, evaluating sources, and building a Canva infographic.">
+  <title>World Watch · Global Issues Investigator</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#app">Skip to activity</a>
+
+  <header class="site-header">
+    <div class="brand">
+      <h1>World Watch</h1>
+      <p class="tagline">Become a Global Issues Investigator</p>
+    </div>
+
+    <div id="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Activity progress">
+      <div id="progress-bar"></div>
+      <span id="progress-label">0% complete</span>
+    </div>
+
+    <div class="toolbar" role="toolbar" aria-label="Activity tools">
+      <button type="button" id="reset-btn" aria-label="Reset all progress">↺ Reset</button>
+      <button type="button" id="print-btn" aria-label="Print this activity">🖨 Print</button>
+    </div>
+  </header>
+
+  <main id="app">
+
+    <!-- STEP 1 -->
+    <section class="step active" id="step-1" data-step="1" aria-labelledby="step-1-title">
+      <h2 id="step-1-title">Step 1 · Your Mission</h2>
+      <p class="briefing">
+        You have been recruited as a <strong>Global Issues Investigator</strong>. Newsrooms, classrooms, and community
+        groups need clear, trustworthy explanations of what is happening in the world — and why it matters. Your job
+        is to choose a real-world issue, dig into credible sources, separate facts from opinions, and turn what you
+        learn into a one-page <strong>Canva infographic</strong> your peers will actually read.
+      </p>
+
+      <p class="badge" aria-label="Estimated time">⏱ Estimated time: 45–60 minutes</p>
+
+      <h3>Learning objectives</h3>
+      <ul class="objectives">
+        <li>Choose and frame a current global issue.</li>
+        <li>Evaluate source credibility using the CRAAP test.</li>
+        <li>Distinguish facts from opinions.</li>
+        <li>Capture research notes using the 5 Ws + How.</li>
+        <li>Synthesize three key insights for a public audience.</li>
+        <li>Translate findings into a clear Canva infographic.</li>
+      </ul>
+
+      <h3>What you'll need</h3>
+      <ul class="materials">
+        <li>A device with internet access</li>
+        <li>This activity website (your work auto-saves on this device)</li>
+        <li>A free <strong>Canva</strong> account (canva.com)</li>
+        <li>Headphones (optional, if your sources include video)</li>
+      </ul>
+
+      <nav class="step-nav" aria-label="Step 1 navigation">
+        <button type="button" class="nav-next" data-goto="2">Begin →</button>
+      </nav>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="step" id="step-2" data-step="2" aria-labelledby="step-2-title">
+      <h2 id="step-2-title">Step 2 · Choose Your Issue</h2>
+      <p>Pick the global issue you want to investigate. Tap a card to select it — or propose your own at the bottom.</p>
+
+      <div class="topic-grid" role="list">
+        <button type="button" class="topic-card" data-topic="climate" aria-pressed="false" role="listitem">
+          <span class="topic-emoji" aria-hidden="true">🌍</span>
+          <span class="topic-title">Climate &amp; Environment</span>
+          <span class="topic-blurb">Heat waves, biodiversity, clean energy, and how communities adapt.</span>
+        </button>
+        <button type="button" class="topic-card" data-topic="health" aria-pressed="false" role="listitem">
+          <span class="topic-emoji" aria-hidden="true">🩺</span>
+          <span class="topic-title">Global Health</span>
+          <span class="topic-blurb">Disease outbreaks, mental health, vaccines, and access to care.</span>
+        </button>
+        <button type="button" class="topic-card" data-topic="conflict" aria-pressed="false" role="listitem">
+          <span class="topic-emoji" aria-hidden="true">🕊️</span>
+          <span class="topic-title">Conflict &amp; Peace</span>
+          <span class="topic-blurb">Wars, refugees, peace-building, and human rights.</span>
+        </button>
+        <button type="button" class="topic-card" data-topic="education" aria-pressed="false" role="listitem">
+          <span class="topic-emoji" aria-hidden="true">📚</span>
+          <span class="topic-title">Education Access</span>
+          <span class="topic-blurb">Who gets to learn, school equity, literacy, and girls in STEM.</span>
+        </button>
+        <button type="button" class="topic-card" data-topic="technology" aria-pressed="false" role="listitem">
+          <span class="topic-emoji" aria-hidden="true">💻</span>
+          <span class="topic-title">Technology &amp; Society</span>
+          <span class="topic-blurb">AI, privacy, misinformation, and the digital divide.</span>
+        </button>
+        <button type="button" class="topic-card" data-topic="economy" aria-pressed="false" role="listitem">
+          <span class="topic-emoji" aria-hidden="true">💼</span>
+          <span class="topic-title">Economy &amp; Work</span>
+          <span class="topic-blurb">Jobs, inflation, fair wages, and the future of work.</span>
+        </button>
+      </div>
+
+      <div class="custom-topic-row">
+        <label for="custom-topic">Or propose your own issue:</label>
+        <input type="text" id="custom-topic" name="custom-topic" placeholder="e.g., Ocean plastic pollution" maxlength="80" aria-describedby="custom-topic-help">
+        <span id="custom-topic-help" class="hint">Tap or type here to use a custom topic.</span>
+      </div>
+
+      <p class="selected-readout">Selected: <strong id="selected-topic-display">none yet</strong></p>
+
+      <nav class="step-nav" aria-label="Step 2 navigation">
+        <button type="button" class="nav-prev" data-goto="1">← Back</button>
+        <button type="button" class="nav-next" data-goto="3" data-requires="topic" disabled>Next →</button>
+      </nav>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="step" id="step-3" data-step="3" aria-labelledby="step-3-title">
+      <h2 id="step-3-title">Step 3 · Source Sleuth</h2>
+      <p>Great investigators check their sources. Use the <strong>CRAAP test</strong> as your detective lens:</p>
+      <ul class="craap-list">
+        <li><strong>Currency</strong> — How recent is the information?</li>
+        <li><strong>Relevance</strong> — Does it actually answer your question?</li>
+        <li><strong>Authority</strong> — Who wrote it? What are their credentials?</li>
+        <li><strong>Accuracy</strong> — Is evidence cited? Can you verify it?</li>
+        <li><strong>Purpose</strong> — Inform, persuade, sell, or entertain?</li>
+      </ul>
+      <p class="instructions">For each source below, mark it <strong>✅ Credible</strong> or <strong>⚠️ Question it</strong>.</p>
+
+      <div class="source-list">
+        <article class="source-card" data-credible="true">
+          <h3 class="source-title">Reuters factual report (2024)</h3>
+          <p class="source-meta"><span class="chip">News agency</span><span class="chip">Dated &amp; bylined</span></p>
+          <p class="source-desc">A Reuters wire story from March 2024 with a named reporter, on-record sources, and links to data.</p>
+          <div class="judge-buttons">
+            <button type="button" class="source-judge" data-judge="credible">✅ Credible</button>
+            <button type="button" class="source-judge" data-judge="question">⚠️ Question it</button>
+          </div>
+          <p class="source-feedback" hidden></p>
+        </article>
+
+        <article class="source-card" data-credible="true">
+          <h3 class="source-title">Peer-reviewed study in <em>The Lancet</em></h3>
+          <p class="source-meta"><span class="chip">Medical journal</span><span class="chip">Peer-reviewed</span></p>
+          <p class="source-desc">An article reviewed by independent experts before publication, with full methods and citations.</p>
+          <div class="judge-buttons">
+            <button type="button" class="source-judge" data-judge="credible">✅ Credible</button>
+            <button type="button" class="source-judge" data-judge="question">⚠️ Question it</button>
+          </div>
+          <p class="source-feedback" hidden></p>
+        </article>
+
+        <article class="source-card" data-credible="true">
+          <h3 class="source-title">UN data dashboard</h3>
+          <p class="source-meta"><span class="chip">Official statistics</span><span class="chip">data.un.org</span></p>
+          <p class="source-desc">Country-level indicators published by the United Nations, updated regularly with source notes.</p>
+          <div class="judge-buttons">
+            <button type="button" class="source-judge" data-judge="credible">✅ Credible</button>
+            <button type="button" class="source-judge" data-judge="question">⚠️ Question it</button>
+          </div>
+          <p class="source-feedback" hidden></p>
+        </article>
+
+        <article class="source-card" data-credible="false">
+          <h3 class="source-title">Anonymous viral X / Twitter post</h3>
+          <p class="source-meta"><span class="chip">Social media</span><span class="chip">No author</span></p>
+          <p class="source-desc">A post with 2 million views claiming a shocking statistic — but no author name, no link, no source.</p>
+          <div class="judge-buttons">
+            <button type="button" class="source-judge" data-judge="credible">✅ Credible</button>
+            <button type="button" class="source-judge" data-judge="question">⚠️ Question it</button>
+          </div>
+          <p class="source-feedback" hidden></p>
+        </article>
+
+        <article class="source-card" data-credible="false">
+          <h3 class="source-title">Sponsored blog selling a product</h3>
+          <p class="source-meta"><span class="chip">Sponsored</span><span class="chip">Affiliate links</span></p>
+          <p class="source-desc">A "wellness" blog post about climate-friendly diets that ends with a discount code for supplements.</p>
+          <div class="judge-buttons">
+            <button type="button" class="source-judge" data-judge="credible">✅ Credible</button>
+            <button type="button" class="source-judge" data-judge="question">⚠️ Question it</button>
+          </div>
+          <p class="source-feedback" hidden></p>
+        </article>
+
+        <article class="source-card" data-credible="false">
+          <h3 class="source-title">Satire site article</h3>
+          <p class="source-meta"><span class="chip">Satire / humor</span><span class="chip">"Not real news"</span></p>
+          <p class="source-desc">A funny article from a parody website. The footer literally says "for entertainment purposes only."</p>
+          <div class="judge-buttons">
+            <button type="button" class="source-judge" data-judge="credible">✅ Credible</button>
+            <button type="button" class="source-judge" data-judge="question">⚠️ Question it</button>
+          </div>
+          <p class="source-feedback" hidden></p>
+        </article>
+      </div>
+
+      <p class="score-readout">Score: <span id="source-score">0</span> / 6 <span class="hint">(need 4 to continue)</span></p>
+
+      <nav class="step-nav" aria-label="Step 3 navigation">
+        <button type="button" class="nav-prev" data-goto="2">← Back</button>
+        <button type="button" class="nav-next" data-goto="4" data-requires="sources" disabled>Next →</button>
+      </nav>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="step" id="step-4" data-step="4" aria-labelledby="step-4-title">
+      <h2 id="step-4-title">Step 4 · Fact vs. Opinion</h2>
+      <p>Reporters share <strong>facts</strong> (verifiable). Commentators share <strong>opinions</strong> (a viewpoint).
+        Read each statement and decide which it is.</p>
+
+      <ul class="statement-list">
+        <li class="statement" data-type="fact">
+          <p class="statement-text">"In 2023, global average surface temperatures were the warmest on record, according to NASA."</p>
+          <div class="judge-buttons">
+            <button type="button" data-pick="fact">Fact</button>
+            <button type="button" data-pick="opinion">Opinion</button>
+          </div>
+          <p class="statement-feedback" hidden></p>
+        </li>
+        <li class="statement" data-type="opinion">
+          <p class="statement-text">"Electric cars are clearly the best solution to climate change."</p>
+          <div class="judge-buttons">
+            <button type="button" data-pick="fact">Fact</button>
+            <button type="button" data-pick="opinion">Opinion</button>
+          </div>
+          <p class="statement-feedback" hidden></p>
+        </li>
+        <li class="statement" data-type="fact">
+          <p class="statement-text">"The World Health Organization reports more than 1 billion people live with a mental health disorder."</p>
+          <div class="judge-buttons">
+            <button type="button" data-pick="fact">Fact</button>
+            <button type="button" data-pick="opinion">Opinion</button>
+          </div>
+          <p class="statement-feedback" hidden></p>
+        </li>
+        <li class="statement" data-type="opinion">
+          <p class="statement-text">"Schools should ban smartphones because they are ruining kids' attention spans."</p>
+          <div class="judge-buttons">
+            <button type="button" data-pick="fact">Fact</button>
+            <button type="button" data-pick="opinion">Opinion</button>
+          </div>
+          <p class="statement-feedback" hidden></p>
+        </li>
+        <li class="statement" data-type="fact">
+          <p class="statement-text">"UNESCO data shows about 250 million children worldwide are out of school."</p>
+          <div class="judge-buttons">
+            <button type="button" data-pick="fact">Fact</button>
+            <button type="button" data-pick="opinion">Opinion</button>
+          </div>
+          <p class="statement-feedback" hidden></p>
+        </li>
+        <li class="statement" data-type="opinion">
+          <p class="statement-text">"AI will probably do more harm than good in the next ten years."</p>
+          <div class="judge-buttons">
+            <button type="button" data-pick="fact">Fact</button>
+            <button type="button" data-pick="opinion">Opinion</button>
+          </div>
+          <p class="statement-feedback" hidden></p>
+        </li>
+      </ul>
+
+      <p class="score-readout">Score: <span id="fact-score">0</span> / 6 <span class="hint">(need 5 to continue)</span></p>
+
+      <nav class="step-nav" aria-label="Step 4 navigation">
+        <button type="button" class="nav-prev" data-goto="3">← Back</button>
+        <button type="button" class="nav-next" data-goto="5" data-requires="facts" disabled>Next →</button>
+      </nav>
+    </section>
+
+    <!-- STEP 5 -->
+    <section class="step" id="step-5" data-step="5" aria-labelledby="step-5-title">
+      <h2 id="step-5-title">Step 5 · Research Notes: 5 Ws + How</h2>
+      <p>Capture findings from <strong>at least two credible sources</strong>. Be specific — your future self (and your
+        infographic) will thank you.</p>
+
+      <form class="notes-form" autocomplete="off" aria-label="Research notes">
+        <div class="field">
+          <label for="note-who">Who is involved or affected?</label>
+          <textarea id="note-who" name="who" rows="2" placeholder="e.g., Coastal communities in Bangladesh, climate scientists, the IPCC…"></textarea>
+          <span class="word-count" data-for="who">0 words</span>
+        </div>
+        <div class="field">
+          <label for="note-what">What is happening?</label>
+          <textarea id="note-what" name="what" rows="3" placeholder="e.g., Sea levels rising 3.4 mm per year, displacing families…"></textarea>
+          <span class="word-count" data-for="what">0 words</span>
+        </div>
+        <div class="field">
+          <label for="note-where">Where is it happening?</label>
+          <textarea id="note-where" name="where" rows="2" placeholder="e.g., South Asia, low-lying coastlines, specific cities…"></textarea>
+          <span class="word-count" data-for="where">0 words</span>
+        </div>
+        <div class="field">
+          <label for="note-when">When did this start / when will it matter most?</label>
+          <textarea id="note-when" name="when" rows="2" placeholder="e.g., Accelerating since the 1990s; major impacts projected by 2050…"></textarea>
+          <span class="word-count" data-for="when">0 words</span>
+        </div>
+        <div class="field">
+          <label for="note-why">Why is it happening?</label>
+          <textarea id="note-why" name="why" rows="3" placeholder="e.g., Greenhouse gas emissions, deforestation, ocean warming…"></textarea>
+          <span class="word-count" data-for="why">0 words</span>
+        </div>
+        <div class="field">
+          <label for="note-how">How are people responding?</label>
+          <textarea id="note-how" name="how" rows="3" placeholder="e.g., Sea walls, renewable energy investment, climate migration policy…"></textarea>
+          <span class="word-count" data-for="how">0 words</span>
+        </div>
+
+        <fieldset class="sources-fieldset">
+          <legend>Cite your sources (URL or APA)</legend>
+          <div class="field">
+            <label for="source-1">Source 1</label>
+            <input type="text" id="source-1" name="source-1" placeholder="https://… or APA citation">
+          </div>
+          <div class="field">
+            <label for="source-2">Source 2</label>
+            <input type="text" id="source-2" name="source-2" placeholder="https://… or APA citation">
+          </div>
+        </fieldset>
+      </form>
+
+      <nav class="step-nav" aria-label="Step 5 navigation">
+        <button type="button" class="nav-prev" data-goto="4">← Back</button>
+        <button type="button" class="nav-next" data-goto="6" data-requires="notes" disabled>Next →</button>
+      </nav>
+    </section>
+
+    <!-- STEP 6 -->
+    <section class="step" id="step-6" data-step="6" aria-labelledby="step-6-title">
+      <h2 id="step-6-title">Step 6 · Three Key Insights</h2>
+      <p>In one sentence each, what should the world know about your issue? Make these crisp — these will be the
+        call-outs on your infographic.</p>
+
+      <form class="insights-form" autocomplete="off" aria-label="Three key insights">
+        <div class="field">
+          <label for="insight-1">Insight 1</label>
+          <textarea id="insight-1" name="insight-1" rows="2" maxlength="220" placeholder="One clear sentence — the headline of your story."></textarea>
+          <span class="char-count" data-for="insight-1">0 / 220</span>
+        </div>
+        <div class="field">
+          <label for="insight-2">Insight 2</label>
+          <textarea id="insight-2" name="insight-2" rows="2" maxlength="220" placeholder="A surprising fact, statistic, or human angle."></textarea>
+          <span class="char-count" data-for="insight-2">0 / 220</span>
+        </div>
+        <div class="field">
+          <label for="insight-3">Insight 3</label>
+          <textarea id="insight-3" name="insight-3" rows="2" maxlength="220" placeholder="What can a young person actually do about it?"></textarea>
+          <span class="char-count" data-for="insight-3">0 / 220</span>
+        </div>
+      </form>
+
+      <details class="model-examples">
+        <summary>Need a model? Tap to see sample insights.</summary>
+        <ul>
+          <li>"More than 250 million children are out of school worldwide — most of them girls."</li>
+          <li>"Every $1 invested in girls' education returns about $2.80 in economic growth (World Bank)."</li>
+          <li>"You can help by mentoring, donating books, or supporting Malala Fund campaigns."</li>
+        </ul>
+      </details>
+
+      <nav class="step-nav" aria-label="Step 6 navigation">
+        <button type="button" class="nav-prev" data-goto="5">← Back</button>
+        <button type="button" class="nav-next" data-goto="7" data-requires="insights" disabled>Next →</button>
+      </nav>
+    </section>
+
+    <!-- STEP 7 -->
+    <section class="step" id="step-7" data-step="7" aria-labelledby="step-7-title">
+      <h2 id="step-7-title">Step 7 · Build It in Canva</h2>
+      <p>Time to turn your research into a one-page infographic your peers will actually stop and read.</p>
+
+      <div class="canva-layout">
+        <div class="canva-brief">
+          <section class="brief-box" aria-labelledby="brief-title">
+            <h3 id="brief-title">Project brief</h3>
+            <p><strong>Audience:</strong> your peers and your local community.</p>
+            <p><strong>Format:</strong> 1-page infographic — portrait, 1080 × 1350 px (or use the Canva "Infographic" preset).</p>
+
+            <h4>Required elements</h4>
+            <ul class="checklist">
+              <li><label><input type="checkbox" id="check-1"> A clear title naming your global issue</label></li>
+              <li><label><input type="checkbox" id="check-2"> A subtitle or hook that pulls readers in</label></li>
+              <li><label><input type="checkbox" id="check-3"> Your 5 Ws + How summarized visually</label></li>
+              <li><label><input type="checkbox" id="check-4"> Your 3 Key Insights as call-outs</label></li>
+              <li><label><input type="checkbox" id="check-5"> At least 2 cited sources in the footer</label></li>
+              <li><label><input type="checkbox" id="check-6"> At least 1 chart, map, or icon set</label></li>
+              <li><label><input type="checkbox" id="check-7"> Your name and class period</label></li>
+              <li><label><input type="checkbox" id="check-8"> Consistent color palette and legible fonts</label></li>
+            </ul>
+          </section>
+
+          <section class="design-tips" aria-labelledby="tips-title">
+            <h4 id="tips-title">Design tips</h4>
+            <ul>
+              <li><strong>Contrast:</strong> dark text on light backgrounds (or vice versa).</li>
+              <li><strong>Hierarchy:</strong> the most important thing should be the biggest.</li>
+              <li><strong>White space:</strong> leave room to breathe — don't fill every pixel.</li>
+              <li><strong>One accent color</strong> for emphasis; keep the rest neutral.</li>
+              <li><strong>Sans-serif body fonts</strong> at 14 pt or larger for readability.</li>
+            </ul>
+          </section>
+        </div>
+
+        <aside class="canva-actions" aria-label="Canva actions">
+          <a id="launch-canva-btn" class="btn-primary" target="_blank" rel="noopener" href="https://www.canva.com/create/infographics/">Open Canva Infographics ↗</a>
+          <button type="button" id="export-notes-btn">⬇ Download my notes (.txt)</button>
+          <button type="button" id="copy-canva-prompt-btn">📋 Copy Canva-ready brief</button>
+          <button type="button" id="copy-summary-btn">📋 Copy student summary</button>
+          <p class="hint">Tip: paste the Canva-ready brief into Canva's "Magic Write" or use it as your outline.</p>
+        </aside>
+      </div>
+
+      <h3>Rubric</h3>
+      <table class="rubric">
+        <caption class="visually-hidden">Scoring rubric across four criteria and four performance levels.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Criterion</th>
+            <th scope="col">4 · Exemplary</th>
+            <th scope="col">3 · Proficient</th>
+            <th scope="col">2 · Developing</th>
+            <th scope="col">1 · Beginning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Content</th>
+            <td>Issue is clearly framed; 5 Ws + How are accurate, specific, and insightful.</td>
+            <td>Issue is clear; most Ws are answered with accurate detail.</td>
+            <td>Issue is partly clear; some Ws are vague or missing.</td>
+            <td>Issue is unclear; key information is missing.</td>
+          </tr>
+          <tr>
+            <th scope="row">Sources</th>
+            <td>3+ credible sources, well chosen and properly cited.</td>
+            <td>2 credible sources, cited correctly.</td>
+            <td>Sources present but credibility or citation is weak.</td>
+            <td>No credible sources or no citations.</td>
+          </tr>
+          <tr>
+            <th scope="row">Design</th>
+            <td>Strong hierarchy, contrast, and consistent style; visuals add meaning.</td>
+            <td>Clear and readable; visuals support the content.</td>
+            <td>Cluttered or inconsistent; some visuals feel decorative.</td>
+            <td>Hard to read; little design intent.</td>
+          </tr>
+          <tr>
+            <th scope="row">Mechanics</th>
+            <td>No errors; tone fits the audience; name and class included.</td>
+            <td>Few minor errors; mostly on-tone.</td>
+            <td>Several errors that distract the reader.</td>
+            <td>Many errors; missing required identifiers.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Before you submit</h3>
+      <ul class="submission-checklist">
+        <li>Download your infographic from Canva as a PDF or PNG.</li>
+        <li>Submit it the way your teacher asked (LMS upload, shared folder, printed copy, etc.).</li>
+        <li>Keep your downloaded notes file in case you need to revise.</li>
+        <li>Be ready to share one insight aloud in class.</li>
+      </ul>
+
+      <nav class="step-nav" aria-label="Step 7 navigation">
+        <button type="button" class="nav-prev" data-goto="6">← Back</button>
+      </nav>
+    </section>
+
+    <div id="completion-banner" hidden role="status">🎉 Activity complete — head to Canva!</div>
+  </main>
+
+  <footer class="site-footer">
+    <p class="small">Made for classrooms · Save &amp; resume — your work auto-saves on this device.</p>
+    <details class="teacher-tips">
+      <summary>For teachers</summary>
+      <div class="teacher-content">
+        <h4>Time estimate</h4>
+        <p>45–60 minutes for the on-screen activity, plus 30–45 minutes in Canva. Works well as a 2-day mini-unit
+          or a single 90-minute block.</p>
+
+        <h4>Differentiation</h4>
+        <ul>
+          <li><strong>Scaffolded:</strong> assign topics, provide a curated source list, and pair students for Steps 3–5.</li>
+          <li><strong>On-level:</strong> students choose their own topic and find their own credible sources.</li>
+          <li><strong>Extension:</strong> require a primary source (interview, survey) and a counter-argument call-out.</li>
+          <li><strong>EL / IEP:</strong> allow voice-to-text in textareas; provide sentence frames for the 3 Insights.</li>
+        </ul>
+
+        <h4>Standards alignment</h4>
+        <ul>
+          <li><strong>ISTE Student Standards:</strong> 3 Knowledge Constructor (3a, 3b, 3d) and 6 Creative Communicator (6a, 6b, 6d).</li>
+          <li><strong>CASEL competencies:</strong> Social Awareness (perspective-taking, global citizenship) and Responsible Decision-Making (analyzing situations, evaluating sources).</li>
+          <li><strong>CCSS ELA:</strong> RI.7-12.7, RI.7-12.8, W.7-12.7, W.7-12.8 (research, source evaluation, integration of information).</li>
+        </ul>
+      </div>
+    </details>
+  </footer>
+</body>
+</html>

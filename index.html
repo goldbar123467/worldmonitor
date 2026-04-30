@@ -1,135 +1,391 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https: http://localhost:5173 http://127.0.0.1:46123 ws: wss: blob: data:; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://www.youtube.com https://static.cloudflareinsights.com https://vercel.live; worker-src 'self' blob:; font-src 'self' data: https:; media-src 'self' data: blob: https:; frame-src 'self' http://127.0.0.1:46123 https://worldmonitor.app https://tech.worldmonitor.app https://www.youtube.com https://www.youtube-nocookie.com;" />
-    <meta name="referrer" content="strict-origin-when-cross-origin" />
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Great American Road Trip — Summer Project</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
 
-    <!-- Primary Meta Tags -->
-    <title>World Monitor - Global Situation with AI Insights</title>
-    <meta name="title" content="World Monitor - Global Situation with AI Insights" />
-    <meta name="description" content="AI-powered real-time global intelligence dashboard with live news, markets, military tracking, infrastructure monitoring, and geopolitical data. OSINT in one view." />
-    <meta name="keywords" content="AI intelligence, AI-powered dashboard, global intelligence, geopolitical dashboard, world news, market data, military bases, nuclear facilities, undersea cables, conflict zones, real-time monitoring, situation awareness, OSINT, flight tracking, AIS ships, earthquake monitor, protest tracker, power outages, oil prices, government spending, polymarket predictions" />
-    <meta name="author" content="Elie Habib" />
-    <meta name="theme-color" content="#0a0f0a" />
-    <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://worldmonitor.app/" />
+    <!-- ====== HERO ====== -->
+    <header class="hero">
+      <span class="palm-decor palm-tl">🌴</span>
+      <span class="palm-decor palm-tr">🌴</span>
+      <span class="hero-stamp">★ Summer Project · 5th &amp; 6th Grade ★</span>
+      <h1>The Great American Road Trip</h1>
+      <p class="tagline">You're the planner. Map a 7–14 day summer drive across the U.S.A.</p>
+      <div class="hero-icons" aria-hidden="true">☀️ 🚗 🌊 🗺️ 🏖️</div>
+    </header>
 
-    <!-- Additional Search Discovery -->
-    <meta name="application-name" content="World Monitor" />
-    <meta name="subject" content="AI-Powered Global Intelligence and Situation Awareness" />
-    <meta name="classification" content="AI Intelligence Dashboard, OSINT Tool, News Aggregator" />
-    <meta name="coverage" content="Worldwide" />
-    <meta name="distribution" content="Global" />
-    <meta name="rating" content="General" />
+    <!-- ====== TODAY'S PLAN ====== -->
+    <div class="todays-plan">
+      <div class="todays-plan-title">▶ Today's Plan ◀</div>
+      <div class="plan-steps">
+        <div class="plan-step">
+          <div class="step-num">1</div>
+          <div class="step-name">Watch &amp; Wonder</div>
+          <div class="step-time">5 min</div>
+        </div>
+        <div class="plan-step">
+          <div class="step-num">2</div>
+          <div class="step-name">Mission Briefing</div>
+          <div class="step-time">5 min</div>
+        </div>
+        <div class="plan-step">
+          <div class="step-num">3</div>
+          <div class="step-name">Pick a Region Together</div>
+          <div class="step-time">10 min</div>
+        </div>
+        <div class="plan-step">
+          <div class="step-num">4</div>
+          <div class="step-name">Start Your Plan</div>
+          <div class="step-time">10 min</div>
+        </div>
+        <div class="plan-step">
+          <div class="step-num">5</div>
+          <div class="step-name">Exit Ticket</div>
+          <div class="step-time">5 min</div>
+        </div>
+      </div>
+    </div>
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://worldmonitor.app/" />
-    <meta property="og:title" content="World Monitor - Global Situation with AI Insights" />
-    <meta property="og:description" content="AI-powered real-time global intelligence dashboard with live news, markets, military tracking, infrastructure monitoring, and geopolitical data." />
-    <meta property="og:image" content="https://worldmonitor.app/favico/og-image.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:site_name" content="World Monitor" />
-    <meta property="og:locale" content="en_US" />
+    <!-- ====== MISSION ====== -->
+    <section>
+      <h2 class="section-header coral">▶ Your Mission</h2>
+      <div class="postcard">
+        <p>Imagine someone hands you a car, a map, and <strong>$2,000</strong>. Your job is to design the best <strong>7 to 14 day</strong> summer road trip across the United States.</p>
+        <p>You start in <strong>Indiana</strong>. You end in <strong>Indiana</strong>. Everything in between is up to you — the states you cross, the cities you sleep in, the parks you hike, and the beaches you find.</p>
+        <p>This isn't a real trip. You're <strong>the planner</strong>. Make a route someone else would love to take.</p>
+      </div>
+    </section>
 
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://worldmonitor.app/" />
-    <meta name="twitter:title" content="World Monitor - Global Situation with AI Insights" />
-    <meta name="twitter:description" content="AI-powered real-time global intelligence dashboard with live news, markets, military tracking, infrastructure monitoring, and geopolitical data." />
-    <meta name="twitter:image" content="https://worldmonitor.app/favico/og-image.png" />
-    <meta name="twitter:site" content="@worldmonitorapp" />
-    <meta name="twitter:creator" content="@eliehabib" />
+    <!-- ====== RULES ====== -->
+    <section>
+      <h2 class="section-header sea">▶ The Rules of the Road</h2>
+      <div class="rules-grid">
 
-    <!-- Favicons -->
-    <link rel="icon" type="image/x-icon" href="/favico/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favico/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favico/favicon-16x16.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/favico/apple-touch-icon.png" />
+        <div class="rule-sticker">
+          <div class="rule-num">1</div>
+          <h3>Pick Your Length</h3>
+          <p>Plan a trip between <strong>7 and 14 days</strong> long. Longer trips = more to plan, but more places to see.</p>
+        </div>
 
-    <!-- Resource hints for faster loading -->
-    <link rel="preconnect" href="https://api.maptiler.com" crossorigin />
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" href="/data/countries.geojson" as="fetch" crossorigin />
+        <div class="rule-sticker">
+          <div class="rule-num">2</div>
+          <h3>Cross 5+ States</h3>
+          <p>Drive through at least <strong>five different states</strong>. No flying, no teleporting — your crew rides by car.</p>
+        </div>
 
-    <!-- Theme: apply stored preference before first paint to prevent FOUC -->
-    <script>(function(){try{var t=localStorage.getItem('worldmonitor-theme');if(t==='light')document.documentElement.dataset.theme='light';}catch(e){}document.documentElement.classList.add('no-transition');})()</script>
+        <div class="rule-sticker">
+          <div class="rule-num">3</div>
+          <h3>Hit 3 Regions</h3>
+          <p>Visit at least <strong>three of the four U.S. regions</strong>: Northeast, South, Midwest, or West.</p>
+        </div>
 
-    <!-- Critical CSS for first paint (header, grid, panel shells, dark theme) -->
-    <style>
-      :root {
-        --bg: #0a0a0a;
-        --bg-secondary: #111;
-        --surface: #141414;
-        --border: #2a2a2a;
-        --text: #e8e8e8;
-        --text-secondary: #ccc;
-        --text-dim: #888;
-        --panel-bg: #141414;
-        --panel-border: #2a2a2a;
-        --font-body: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
-      }
-      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-      body { background: var(--bg); color: var(--text); font-family: var(--font-body); }
-      #app { min-height: 100vh; }
-      .header { display: flex; align-items: center; padding: 4px 12px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); gap: 8px; font-size: 11px; height: 32px; }
-      .panels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1px; padding: 1px; }
-      .panel { background: var(--panel-bg); border: 1px solid var(--panel-border); display: flex; flex-direction: column; min-height: 200px; max-height: 400px; }
-      .panel-header { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-bottom: 1px solid var(--border); font-size: 11px; min-height: 28px; }
-      .panel-content { flex: 1; overflow-y: auto; padding: 8px; }
-      .map-section { height: 45vh; min-height: 300px; position: relative; background: #020a08; }
-      /* Loading skeleton */
-      .panel-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 12px; }
-    </style>
-    <!-- Styles -->
-    <link rel="preload" href="/src/styles/main.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-    <noscript><link rel="stylesheet" href="/src/styles/main.css" /></noscript>
-  </head>
-  <body>
-    <div id="app"></div>
-    <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "World Monitor",
-      "alternateName": "WorldMonitor",
-      "url": "https://worldmonitor.app/",
-      "description": "AI-powered real-time global intelligence dashboard with live news, markets, military tracking, infrastructure monitoring, and geopolitical data.",
-      "applicationCategory": "UtilitiesApplication",
-      "operatingSystem": "Web Browser",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "author": {
-        "@type": "Person",
-        "name": "Elie Habib"
-      },
-      "featureList": [
-        "AI-powered intelligence synthesis",
-        "Real-time news aggregation",
-        "Stock market tracking",
-        "Military flight monitoring",
-        "Ship AIS tracking",
-        "Earthquake alerts",
-        "Protest tracking",
-        "Power outage monitoring",
-        "Oil price analytics",
-        "Government spending data",
-        "Prediction markets",
-        "Infrastructure monitoring",
-        "Geopolitical intelligence"
-      ],
-      "screenshot": "https://worldmonitor.app/favico/og-image.png",
-      "keywords": "AI, OSINT, intelligence dashboard, geopolitical, real-time monitoring, situation awareness, AI-powered"
-    }
-    </script>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+        <div class="rule-sticker">
+          <div class="rule-num">4</div>
+          <h3>One National Park</h3>
+          <p>Make a stop at <strong>at least one National Park</strong>. Tell us one cool fact about it.</p>
+        </div>
+
+        <div class="rule-sticker">
+          <div class="rule-num">5</div>
+          <h3>One Big City</h3>
+          <p>Spend at least one night in a <strong>major U.S. city</strong>. Plan a full day of stuff to do there.</p>
+        </div>
+
+        <div class="rule-sticker">
+          <div class="rule-num">6</div>
+          <h3>One Historic Site</h3>
+          <p>Stop at a <strong>place where history happened</strong>. Be ready to explain why it matters.</p>
+        </div>
+
+        <div class="rule-sticker">
+          <div class="rule-num">7</div>
+          <h3>One Beach Day</h3>
+          <p>Find an <strong>ocean, gulf, or Great Lake</strong>. Take one full lazy beach day.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====== BUDGET ====== -->
+    <section>
+      <h2 class="section-header sun">▶ The Budget</h2>
+      <div class="budget-card">
+        <div class="budget-label">Your Total Budget Is</div>
+        <div class="budget-amount">$2,000</div>
+        <div class="budget-note">Track every dollar. Don't go over.</div>
+
+        <div class="budget-breakdown">
+          <div class="budget-bucket">
+            <div class="bucket-icon">⛽</div>
+            <div class="bucket-name">Gas</div>
+            <div class="bucket-amt">$0.18 / mile</div>
+          </div>
+          <div class="budget-bucket">
+            <div class="bucket-icon">🛏️</div>
+            <div class="bucket-name">Lodging</div>
+            <div class="bucket-amt">$95 / night</div>
+          </div>
+          <div class="budget-bucket">
+            <div class="bucket-icon">🍔</div>
+            <div class="bucket-name">Food</div>
+            <div class="bucket-amt">$30 / day</div>
+          </div>
+          <div class="budget-bucket">
+            <div class="bucket-icon">🎟️</div>
+            <div class="bucket-name">Fun Stuff</div>
+            <div class="bucket-amt">You decide</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== STOPS MENU ====== -->
+    <section>
+      <h2 class="section-header plum">▶ Stops Menu — Steal These Ideas</h2>
+      <div class="stops-menu">
+
+        <div class="region-card northeast">
+          <div class="region-banner">The Northeast</div>
+          <div class="region-body">
+            <div class="region-row"><span class="row-label">Cities</span><span class="row-items">New York City · Boston · Philadelphia · Washington D.C.</span></div>
+            <div class="region-row"><span class="row-label">Parks</span><span class="row-items">Acadia (ME) · Catskills (NY)</span></div>
+            <div class="region-row"><span class="row-label">History</span><span class="row-items">Independence Hall · Statue of Liberty · Gettysburg · National Mall</span></div>
+            <div class="region-row"><span class="row-label">Beaches</span><span class="row-items">Cape Cod · Jersey Shore · Coney Island</span></div>
+          </div>
+        </div>
+
+        <div class="region-card south">
+          <div class="region-banner">The South</div>
+          <div class="region-body">
+            <div class="region-row"><span class="row-label">Cities</span><span class="row-items">New Orleans · Nashville · Atlanta · Miami · Charleston</span></div>
+            <div class="region-row"><span class="row-label">Parks</span><span class="row-items">Great Smoky Mountains (TN) · Everglades (FL) · Mammoth Cave (KY)</span></div>
+            <div class="region-row"><span class="row-label">History</span><span class="row-items">The Alamo (TX) · MLK Birthplace (Atlanta) · French Quarter (NOLA)</span></div>
+            <div class="region-row"><span class="row-label">Beaches</span><span class="row-items">Miami Beach · Outer Banks · Gulf Shores · Galveston</span></div>
+          </div>
+        </div>
+
+        <div class="region-card midwest">
+          <div class="region-banner">The Midwest</div>
+          <div class="region-body">
+            <div class="region-row"><span class="row-label">Cities</span><span class="row-items">Chicago · St. Louis · Minneapolis · Detroit · Kansas City</span></div>
+            <div class="region-row"><span class="row-label">Parks</span><span class="row-items">Indiana Dunes (IN) · Badlands (SD) · Voyageurs (MN)</span></div>
+            <div class="region-row"><span class="row-label">History</span><span class="row-items">Mount Rushmore · Gateway Arch · Lincoln Home (Springfield)</span></div>
+            <div class="region-row"><span class="row-label">Beaches</span><span class="row-items">Lake Michigan shore · Sleeping Bear Dunes · Indiana Dunes</span></div>
+          </div>
+        </div>
+
+        <div class="region-card west">
+          <div class="region-banner">The West</div>
+          <div class="region-body">
+            <div class="region-row"><span class="row-label">Cities</span><span class="row-items">Los Angeles · San Francisco · Seattle · Las Vegas · Denver</span></div>
+            <div class="region-row"><span class="row-label">Parks</span><span class="row-items">Yellowstone · Grand Canyon · Yosemite · Zion · Rocky Mountain</span></div>
+            <div class="region-row"><span class="row-label">History</span><span class="row-items">Alcatraz · Hoover Dam · Pikes Peak · Old Town San Diego</span></div>
+            <div class="region-row"><span class="row-label">Beaches</span><span class="row-items">Santa Monica · Big Sur · Oregon Coast · San Diego</span></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====== WHAT'S IN THE SLIDESHOW ====== -->
+    <section>
+      <h2 class="section-header palm">▶ What's Inside Your Slideshow</h2>
+      <div class="deliverables">
+
+        <div class="deliverable">
+          <div class="check-box"></div>
+          <div class="deliverable-content">
+            <h3>1. Route Map <span class="due">1 Slide</span></h3>
+            <p>A U.S. map showing your full route. Label every overnight stop with the city and state. Use a Canva map element or generate one with AI.</p>
+          </div>
+        </div>
+
+        <div class="deliverable">
+          <div class="check-box"></div>
+          <div class="deliverable-content">
+            <h3>2. Day-by-Day Itinerary <span class="due">3+ Slides</span></h3>
+            <p>Show every day of the trip. Date, where you sleep, miles driven, and what you'll do. Use a table or a slide per major stop.</p>
+          </div>
+        </div>
+
+        <div class="deliverable">
+          <div class="check-box"></div>
+          <div class="deliverable-content">
+            <h3>3. Budget Tracker <span class="due">1 Slide</span></h3>
+            <p>What you spent on gas, food, lodging, and fun. Show daily totals and a running total. Stay under $2,000.</p>
+          </div>
+        </div>
+
+        <div class="deliverable">
+          <div class="check-box"></div>
+          <div class="deliverable-content">
+            <h3>4. Postcard Home <span class="due">1 Slide</span></h3>
+            <p>Pick your favorite stop. Write a one-paragraph postcard back to Indiana. Pair it with an AI-generated postcard image of that place.</p>
+          </div>
+        </div>
+
+        <div class="deliverable">
+          <div class="check-box"></div>
+          <div class="deliverable-content">
+            <h3>5. Crew Roster <span class="due">1 Slide</span></h3>
+            <p>Up to four people on the trip — real, family, friends, or characters. One sentence each on why they're with you.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====== BRING IT TO LIFE IN CANVA ====== -->
+    <section>
+      <h2 class="section-header coral">▶ Bring It to Life in Canva</h2>
+
+      <div class="canva-intro">
+        <p>Your final project is a <strong>Canva slideshow</strong>. You'll use AI to generate images, pick from beautiful travel templates, and design like a real graphic designer.</p>
+      </div>
+
+      <div class="slides-grid">
+
+        <div class="slide-card">
+          <div class="slide-tag">SLIDE 1</div>
+          <h3>The Cover</h3>
+          <p>Trip name, your name, and an AI-generated hero image — like a vintage road trip poster or a sunset highway.</p>
+        </div>
+
+        <div class="slide-card">
+          <div class="slide-tag">SLIDE 2</div>
+          <h3>Meet the Crew</h3>
+          <p>Up to 4 travel buddies. Use AI to generate cartoon portraits or pick stickers. One sentence per person.</p>
+        </div>
+
+        <div class="slide-card">
+          <div class="slide-tag">SLIDE 3</div>
+          <h3>The Route</h3>
+          <p>Your map of the U.S. with every stop labeled. Use Canva's map elements or generate a stylized travel map.</p>
+        </div>
+
+        <div class="slide-card">
+          <div class="slide-tag">SLIDES 4–8</div>
+          <h3>Day-by-Day Stops</h3>
+          <p>One slide per major stop or one big itinerary table. Each major stop gets an AI image of the place.</p>
+        </div>
+
+        <div class="slide-card">
+          <div class="slide-tag">SLIDE 9</div>
+          <h3>The Budget</h3>
+          <p>A clear table or chart showing how you spent your $2,000. Daily costs and total. Color-code it.</p>
+        </div>
+
+        <div class="slide-card">
+          <div class="slide-tag">SLIDE 10</div>
+          <h3>The Postcard</h3>
+          <p>Your favorite stop, written like a postcard home, with an AI-generated retro postcard image to match.</p>
+        </div>
+
+      </div>
+
+      <div class="ai-toolkit">
+        <h3>★ Your AI Toolkit ★</h3>
+        <div class="ai-tips">
+          <div class="ai-tip">
+            <strong>Magic Media</strong>
+            Generate images of places, food, and people from a text prompt.
+          </div>
+          <div class="ai-tip">
+            <strong>Magic Write</strong>
+            Brainstorm stop ideas, write postcard text, fix grammar.
+          </div>
+          <div class="ai-tip">
+            <strong>Canva Templates</strong>
+            Search "travel" or "road trip" — start there. Don't begin blank.
+          </div>
+          <div class="ai-tip">
+            <strong>Label Your AI</strong>
+            Every AI image gets a tiny "AI-generated" tag in the corner.
+          </div>
+        </div>
+      </div>
+
+      <div class="prompt-examples">
+        <h3>How to Write Better AI Prompts</h3>
+
+        <div class="prompt-row">
+          <div class="prompt-bad">"Yellowstone"</div>
+          <div class="prompt-good">"Vintage travel poster of Yellowstone with elk and a geyser at sunset, retro 1970s style"</div>
+        </div>
+
+        <div class="prompt-row">
+          <div class="prompt-bad">"Beach"</div>
+          <div class="prompt-good">"Sunny postcard of a Florida beach with palm trees and seagulls, bright watercolor look"</div>
+        </div>
+
+        <div class="prompt-row">
+          <div class="prompt-bad">"My crew"</div>
+          <div class="prompt-good">"Cartoon group portrait of four kids on a road trip, smiling, in front of a red minivan"</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== RUBRIC ====== -->
+    <section>
+      <h2 class="section-header sun">▶ How It Gets Graded</h2>
+      <div class="rubric-grid">
+
+        <div class="rubric-item">
+          <div class="rubric-pts">20</div>
+          <div class="rubric-name">Route &amp; Geography</div>
+          <div class="rubric-desc">States and regions correct. Map labeled.</div>
+        </div>
+
+        <div class="rubric-item">
+          <div class="rubric-pts">20</div>
+          <div class="rubric-name">Itinerary</div>
+          <div class="rubric-desc">All days planned with stops &amp; miles.</div>
+        </div>
+
+        <div class="rubric-item">
+          <div class="rubric-pts">20</div>
+          <div class="rubric-name">Budget</div>
+          <div class="rubric-desc">Math adds up. Stays under $2,000.</div>
+        </div>
+
+        <div class="rubric-item">
+          <div class="rubric-pts">20</div>
+          <div class="rubric-name">Writing</div>
+          <div class="rubric-desc">Postcard explains a real reason. Clear sentences.</div>
+        </div>
+
+        <div class="rubric-item">
+          <div class="rubric-pts">20</div>
+          <div class="rubric-name">Design &amp; AI Use</div>
+          <div class="rubric-desc">Slides look polished. AI images fit the content. AI is labeled.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====== ROULETTE ====== -->
+    <section class="roulette-section">
+      <h2 class="section-header">▶ Stuck on Where to Start?</h2>
+      <p class="roulette-lede">
+        Click the button. We'll pick a U.S. region for you to build your trip around.
+      </p>
+      <button class="roulette-btn" onclick="rollRegion()">🎲 Spin the Region Roulette</button>
+      <div class="roulette-result" id="rouletteResult"></div>
+    </section>
+
+    <!-- ====== FOOTER ====== -->
+    <footer class="page-footer">
+      <span class="standard-tag">IN STANDARDS · 5.G.1 · 5.G.2 · 5.E.1 · 6.G.1</span>
+      <span class="footer-text">Geography &amp; Economics · 5th &amp; 6th Grade · IMSA West</span>
+    </footer>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
 </html>
